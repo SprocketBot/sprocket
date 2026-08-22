@@ -1,4 +1,18 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3.10-management-alpine
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   minio:
     image: minio/minio:latest
     ports:
@@ -57,6 +71,8 @@ services:
       - ./core:/app/core
       - ./common:/app/common
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       minio:
         condition: service_healthy
       redis:
@@ -72,9 +88,9 @@ services:
         SERVICE_PATH: microservices/image-generation-service
     env_file: .env
     depends_on:
-      minio:
+      rabbitmq:
         condition: service_healthy
-      postgres:
+      minio:
         condition: service_healthy
 
   matchmaking-service:
@@ -96,11 +112,11 @@ services:
         SERVICE_PATH: microservices/notification-service
     env_file: .env
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       redis:
         condition: service_healthy
       minio:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
 
   replay-parse-service:
@@ -109,11 +125,11 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     depends_on:
+      rabbitmq:
+        condition: service_healthy
       minio:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
 
   server-analytics-service:
@@ -124,7 +140,7 @@ services:
         SERVICE_PATH: microservices/server-analytics-service
     env_file: .env
     depends_on:
-      postgres:
+      rabbitmq:
         condition: service_healthy
 
   discord-bot:

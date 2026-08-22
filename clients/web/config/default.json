@@ -1,7 +1,12 @@
 {
   "client": {
     "gqlUrl": "localhost:3001",
-    "secure": false
+    "secure": false,
+    "chatwoot": {
+      "enabled": false,
+      "url": "chatwoot.spr.ocket.cloud",
+      "websiteToken": ""
+    }
   },
 
   "server": {}

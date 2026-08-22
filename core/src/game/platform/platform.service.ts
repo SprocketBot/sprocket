@@ -1,7 +1,6 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import type {EntityManager} from "typeorm";
-import {Repository} from "typeorm";
+import {EntityManager, Repository} from "typeorm";
 
 import {Platform} from "../../database/game/platform/platform.model";
 

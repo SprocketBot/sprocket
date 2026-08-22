@@ -1,17 +1,12 @@
 import preprocess from 'svelte-preprocess';
 import nodeAdapter from '@sveltejs/adapter-node';
-
-const onwarn = (warning, handler) => {
-  if (warning.code === 'css-unused-selector') return;
-  handler(warning);
-};
+import { resolve } from 'path';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   // Consult https://github.com/sveltejs/svelte-preprocess
   // for more information about preprocessors
   preprocess: preprocess({ postcss: true }),
-  onwarn,
 
   kit: {
     adapter: nodeAdapter(),

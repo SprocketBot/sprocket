@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
-
 import {Injectable} from "@nestjs/common";
 import type {GraphQLExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";

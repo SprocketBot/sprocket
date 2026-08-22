@@ -1,9 +1,6 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {
-    apiUrl, constants, loadConfig,
-} from "$lib/utils";
-
-type SessionJwtPayload = App.Locals["user"] & {exp?: number;};
+import {constants, loadConfig} from "$lib/utils";
+import {add} from "date-fns";
 
 interface refreshPayload {
     cookies: string[];
@@ -12,69 +9,17 @@ interface refreshPayload {
     refreshToken: string;
 }
 
-const ONE_WEEK_COOKIE = "Path=/;SameSite=Lax;Max-Age=604800";
-
-const isPositiveSafeInteger = (value: unknown): value is number => typeof value === "number"
-    && Number.isSafeInteger(value)
-    && value > 0;
-const isValidSessionUser = (value: unknown): value is SessionJwtPayload => {
-    if (!value || typeof value !== "object") return false;
-
-    const candidate = value as Partial<SessionJwtPayload>;
-    return isPositiveSafeInteger(candidate.userId)
-        && typeof candidate.username === "string"
-        && candidate.username.trim().length > 0
-        && isPositiveSafeInteger(candidate.currentOrganizationId)
-        && Array.isArray(candidate.orgTeams)
-        && candidate.orgTeams.every(orgTeam => Number.isInteger(orgTeam) && orgTeam >= 0);
-};
-
-const decodeJwtPayload = (rawToken: string): SessionJwtPayload | null => {
-    const payloadSegment = rawToken.split(".")[1];
-    if (!payloadSegment) return null;
-
-    try {
-        const base64 = payloadSegment.replace(/-/g, "+").replace(/_/g, "/");
-        const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
-        const payload = JSON.parse(Buffer.from(padded, "base64").toString()) as unknown;
-        return isValidSessionUser(payload) ? payload : null;
-    } catch (e) {
-        console.error("Failed to decode session token:", e);
-        return null;
-    }
-};
-
-const parseCookieHeader = (currentCookies: string): Map<string, string> => {
-    const cookies = new Map<string, string>();
-    currentCookies.split("; ").forEach(cookie => {
-        const separator = cookie.indexOf("=");
-        if (separator === -1) return;
-        cookies.set(cookie.slice(0, separator), cookie.slice(separator + 1));
-    });
-    return cookies;
-};
-
-const serializeCookieHeader = (cookies: Map<string, string>): string => Array
-    .from(cookies.entries())
-    .map(([name, value]) => `${name}=${value}`)
-    .join("; ");
-
-const buildSetCookie = (name: string, value: string): string => `${name}=${value};${ONE_WEEK_COOKIE}`;
-
-const setSessionFromToken = (rawToken: string): SessionJwtPayload | null => {
-    const token = decodeJwtPayload(rawToken);
-    if (!token) return null;
-    return token;
-};
-
 const doAuthRefresh = async (
     refreshUrl: string,
     currentCookies: string,
 ): Promise<refreshPayload | null> => {
-    const cookies = parseCookieHeader(currentCookies);
+    let newCookiesString = "";
     // If  refresh it
     // Get the refresh token out of user's cookies
-    const refreshToken = cookies.get(constants.refresh_token_cookie_key);
+    const refreshToken = currentCookies
+        .split("; ")
+        .find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
+        ?.split("=")[1];
     if (refreshToken) {
     // Send that refresh token to the backend, asking
     // for a new JWT
@@ -97,20 +42,46 @@ const doAuthRefresh = async (
             const access_token = tokens.access_token;
             const new_refresh_token = tokens.refresh_token;
 
-            if (!setSessionFromToken(access_token) || typeof new_refresh_token !== "string" || new_refresh_token.length === 0) {
-                console.error("Auth refresh returned invalid session tokens");
-                return null;
+            // Store these new tokens back in the user's cookies
+            const newCookies = currentCookies.split("; ");
+
+            // Access token cookie
+            let newCookies1: string[];
+            if (newCookies.some(c => c.split("=")[0] === constants.auth_cookie_key)) {
+                // Cookie still exists, just update it
+                newCookies1 = newCookies.map(c => {
+                    if (c.split("=")[0] === constants.auth_cookie_key) {
+                        return `${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
+                            weeks: 1,
+                        }).toUTCString()}`;
+                    }
+                    return c;
+                });
+            } else {
+                // Access token cookie doesn't exist, add it.
+                newCookies1 = newCookies;
+                newCookies1.push(`${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
+                    weeks: 1,
+                }).toUTCString()}`);
             }
 
-            cookies.set(constants.auth_cookie_key, access_token);
-            cookies.set(constants.refresh_token_cookie_key, new_refresh_token);
+            // Refresh token cookie
+            const newCookies2 = newCookies1.map(c => {
+                if (c.split("=")[0] === constants.refresh_token_cookie_key) {
+                    return `${constants.refresh_token_cookie_key}=${new_refresh_token};expires=${add(
+                        new Date(),
+                        {weeks: 1},
+                    ).toUTCString()}`;
+                }
+                return c;
+            });
+
+            // Roll our cookies back up into one string
+            newCookiesString = newCookies2.join("; ");
 
             return {
-                cookies: [
-                    buildSetCookie(constants.auth_cookie_key, access_token),
-                    buildSetCookie(constants.refresh_token_cookie_key, new_refresh_token),
-                ],
-                cookiesString: serializeCookieHeader(cookies),
+                cookies: newCookies2,
+                cookiesString: newCookiesString,
                 accessToken: access_token,
                 refreshToken: new_refresh_token,
             };
@@ -138,14 +109,16 @@ export const handle: Handle = async ({event, resolve}) => {
                     ?.split("=")[1];
 
                 if (rawToken) {
-                    const token = setSessionFromToken(rawToken);
+                    // Get the meat out of the JWT (the middle third, separated
+                    // by ".")
+                    const token = JSON.parse(Buffer.from(rawToken.split(".")[1], "base64").toString());
 
                     // Check if JWT has expired
                     const now = new Date();
-                    const exp = new Date((token?.exp ?? 0) * 1000);
+                    const exp = new Date(token.exp * 1000);
                     const remaining = exp.getTime() - now.getTime();
 
-                    if (token && remaining > 0) {
+                    if (remaining > 0) {
                         // Just refresh the session with current data
                         event.locals.user = token;
                         event.locals.token = rawToken;
@@ -153,36 +126,30 @@ export const handle: Handle = async ({event, resolve}) => {
                         // Access token exists in cookies, see if we can
                         // refresh it.
                         const result = await doAuthRefresh(
-                            apiUrl(config.client, "/refresh"),
+                            `http://${config.client.gqlUrl}/refresh`,
                             currentCookies,
                         );
                         if (result) {
                             event.request.headers.set("cookie", result.cookiesString);
                             newCookies = result.cookies;
                             // Refresh the session as well
-                            const refreshedUser = setSessionFromToken(result.accessToken);
-                            if (refreshedUser) {
-                                event.locals.user = refreshedUser;
-                                event.locals.token = result.accessToken;
-                            }
+                            event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
+                            event.locals.token = result.accessToken;
                         }
                     }
                 } else {
                     // No access token exists in cookies, see if we can
                     // refresh it anyway.
                     const result = await doAuthRefresh(
-                        apiUrl(config.client, "/refresh"),
+                        `http://${config.client.gqlUrl}/refresh`,
                         currentCookies,
                     );
                     if (result) {
                         event.request.headers.set("cookie", result.cookiesString);
                         newCookies = result.cookies;
                         // Refresh the session as well
-                        const refreshedUser = setSessionFromToken(result.accessToken);
-                        if (refreshedUser) {
-                            event.locals.user = refreshedUser;
-                            event.locals.token = result.accessToken;
-                        }
+                        event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
+                        event.locals.token = result.accessToken;
                     }
                 }
             }

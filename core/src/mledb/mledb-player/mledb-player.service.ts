@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {config} from "@sprocketbot/common";
-import {ILike, Repository} from "typeorm";
+import {Repository} from "typeorm";
 
 import type {Player} from "$db/franchise/player/player.model";
 import type {User} from "$db/identity/user/user.model";
@@ -94,7 +92,9 @@ export class MledbPlayerService {
         const mleMember = await this.userService.getUserById(user.id, {
             relations: {members: {organization: true} },
         });
-        const defaultOrgMember = mleMember.members?.find(m => m.organizationId === config.defaultOrganizationId);
+        const defaultOrgMember = mleMember.members?.find(
+            m => m.organizationId === config.defaultOrganizationId,
+        );
         if (defaultOrgMember) {
             try {
                 const plat = await this.platformService.getPlatformByCode(platform);
@@ -104,9 +104,11 @@ export class MledbPlayerService {
                     platformId,
                 );
             } catch (e) {
-                this.logger.warn(`Backfill member_platform_account failed (${platform}|${platformId}): ${
-                    e instanceof Error ? e.message : String(e)
-                }`);
+                this.logger.warn(
+                    `Backfill member_platform_account failed (${platform}|${platformId}): ${
+                        e instanceof Error ? e.message : String(e)
+                    }`,
+                );
             }
         }
 
@@ -246,52 +248,4 @@ export class MledbPlayerService {
 
         return player;
     }
-
-    /**
-     * Search presentation players by partial name match.
-     */
-    async searchPresentationPlayers(query: string, limit: number = 10): Promise<MLE_Player[]> {
-        const normalizedQuery = query.trim();
-        if (!normalizedQuery) {
-            return [];
-        }
-
-        const safeLimit = Math.min(Math.max(limit, 1), 25);
-        return this.playerRepository.find({
-            where: {name: ILike(`%${normalizedQuery}%`)},
-            take: safeLimit,
-            order: {name: "ASC"},
-        });
-    }
-
-    /**
-     * Get presentation player details including org team ids and platform accounts.
-     */
-    async getPresentationPlayerDetail(playerId: number): Promise<{
-        player: MLE_Player;
-        orgTeams: number[];
-        platformAccounts: MLE_PlayerAccount[];
-    } | null> {
-        const player = await this.playerRepository.findOne({
-            where: {id: playerId},
-        });
-        if (!player) {
-            return null;
-        }
-
-        const playerOrgs = await this.playerToOrgRepository.find({
-            where: {player: {id: playerId} },
-        });
-
-        const platformAccounts = await this.playerAccountRepository.find({
-            where: {player: {id: playerId} },
-        });
-
-        return {
-            player,
-            orgTeams: playerOrgs.map(playerOrg => playerOrg.orgTeam),
-            platformAccounts,
-        };
-    }
 }
-/* eslint-disable @typescript-eslint/member-ordering */

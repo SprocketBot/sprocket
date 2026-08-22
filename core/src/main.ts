@@ -1,16 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import {ValidationPipe} from "@nestjs/common";
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
-import {
-    AllExceptionsFilter, config, PostgresServer,
-} from "@sprocketbot/common";
-import type {Request, Response} from "express";
+import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
+import {ht} from "date-fns/locale";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
 
 import {AppModule} from "./app.module";
-import {corsOptions, corsPreflightMiddleware} from "./cors";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function writeDepGraph(app: Awaited<ReturnType<typeof NestFactory.create>>): Promise<void> {
@@ -27,19 +23,19 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: config.logger.levels,
     });
-    app.enableShutdownHooks();
-
-    app.getHttpAdapter().getInstance()
-        .get("/healthz", (_req: Request, res: Response) => {
-            res.status(200).json({status: "ok"});
-        });
-
-    app.use(corsPreflightMiddleware);
 
     app.connectMicroservice({
-        strategy: new PostgresServer({queue: config.transport.core_queue}),
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url],
+            queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            heartbeat: 120,
+        },
     });
-    app.enableCors(corsOptions);
+    app.enableCors();
     app.useGlobalPipes(new ValidationPipe());
 
     const httpAdapter = app.get(HttpAdapterHost);

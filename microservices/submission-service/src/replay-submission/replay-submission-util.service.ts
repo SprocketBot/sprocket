@@ -5,6 +5,7 @@ import {
     CoreService,
     MatchmakingEndpoint,
     MatchmakingService,
+    RedisService,
     ResponseStatus,
     ScrimStatus,
 } from "@sprocketbot/common";
@@ -20,6 +21,7 @@ export class ReplaySubmissionUtilService {
 
     constructor(
         private readonly submissionCrudService: ReplaySubmissionCrudService,
+        private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly coreService: CoreService,
     ) {}
@@ -61,7 +63,7 @@ export class ReplaySubmissionUtilService {
         && !scrim.players.some(p => p.id === userId)
         && !override
             ) {
-                // NOTE: Check player's organization teams (i.e. Support override)
+                // TODO: Check player's organization teams (i.e. Support override)
                 return {
                     canSubmit: false,
                     reason: `Player not in scrim.`,
@@ -94,7 +96,7 @@ export class ReplaySubmissionUtilService {
             const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
 
             if (!targetFranchise) {
-                // NOTE: Check for LO Override
+                // TODO: Check for LO Override
                 this.logger.log(`Player ${memberId} is on ${franchises
                     .map(f => f.name)
                     .join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);
@@ -156,9 +158,9 @@ export class ReplaySubmissionUtilService {
                 reason: `Could not find a associated scrim`,
             };
             if (!scrim.players.some(p => p.id === userId)) {
-                // NOTE: Check player's organization teams (i.e. Support
+                // TODO: Check player's organization teams (i.e. Support
                 // override)
-                // NOTE: This is very obviously incorrect: core still creates a
+                // TODO: This is very obviously incorrect: core still creates a
                 // scrim (and allows players to join it) with the *USER* ID, and
                 // not the player ID.
                 return {
@@ -193,7 +195,7 @@ export class ReplaySubmissionUtilService {
             const targetFranchise = franchises.find(f => f.name === homeFranchise.name || f.name === awayFranchise.name);
 
             if (!targetFranchise) {
-                // NOTE: Check for LO Override
+                // TODO: Check for LO Override
                 this.logger.log(`Player ${memberId} is on ${franchises
                     .map(f => f.name)
                     .join(", ")}, not on expected franchises ${homeFranchise.name}, ${awayFranchise.name}`);

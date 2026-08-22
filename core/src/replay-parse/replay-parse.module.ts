@@ -1,13 +1,14 @@
 import {Module} from "@nestjs/common";
 import {
     AnalyticsModule,
-    CarballConverterService,
     CeleryModule,
     EventsModule,
     MatchmakingModule,
     MinioModule,
+    RedisModule,
     SubmissionModule,
 } from "@sprocketbot/common";
+import {CarballConverterService} from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 
 import {DatabaseModule} from "../database";
@@ -27,13 +28,13 @@ import {ReplayParsePubSub} from "./replay-parse.constants";
 import {ReplayParseModResolver} from "./replay-parse.mod.resolver";
 import {ReplaySubmissionResolver, SubmissionRejectionResolver} from "./replay-parse.resolver";
 import {ReplayParseService} from "./replay-parse.service";
-import {TestScrimIdentityController} from "./test-scrim-identity.controller";
 
 @Module({
     imports: [
         SubmissionModule,
         CeleryModule,
         MinioModule,
+        RedisModule,
         MatchmakingModule,
         ScrimModule,
         EventsModule,
@@ -63,6 +64,5 @@ import {TestScrimIdentityController} from "./test-scrim-identity.controller";
         FinalizationSubscriber,
         RocketLeagueFinalizationService,
     ],
-    controllers: [TestScrimIdentityController],
 })
 export class ReplayParseModule {}

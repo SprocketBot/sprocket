@@ -1,4 +1,4 @@
-// NOTE abstract to arbitrarily deep schedule groups, not just season -> week
+// TODO abstract to arbitrarily deep schedule groups, not just season -> week
 
 export interface LeagueScheduleFranchise {
     title: string;

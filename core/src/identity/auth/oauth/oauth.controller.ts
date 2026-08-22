@@ -5,7 +5,6 @@ import {
     Logger,
     Request,
     Response,
-    UnauthorizedException,
     UseGuards,
 } from "@nestjs/common";
 import {config} from "@sprocketbot/common";
@@ -15,12 +14,13 @@ import type {User} from "$db/identity/user/user.model";
 import type {UserAuthenticationAccount} from "$db/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "$db/identity/user_authentication_account/user_authentication_account_type.enum";
 
-import {UserService} from "../../user";
 import {OrgTeamPermissionResolutionService} from "../../user-org-team-permission/org-team-permission-resolution.service";
+import {UserService} from "../../user";
 import {DiscordAuthGuard} from "./guards";
 import {JwtRefreshGuard} from "./guards/jwt-refresh.guard";
 import {OauthService} from "./oauth.service";
-import type {AccessToken, UserPayload} from "./types";
+import type {AccessToken} from "./types";
+import type {UserPayload} from "./types";
 import type {AuthPayload} from "./types/payload.type";
 
 @Controller()
@@ -79,6 +79,9 @@ export class OauthController {
             const tokens = await this.authService.refreshTokens(payload, "");
             return tokens;
         }
-        throw new UnauthorizedException("Refresh token is not bound to a Discord authentication account");
+        return {
+            access_token: "",
+            refresh_token: "",
+        };
     }
 }

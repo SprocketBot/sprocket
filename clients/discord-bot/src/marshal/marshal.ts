@@ -11,7 +11,7 @@ import type {EventFunction} from ".";
 import {
     CommandMetaSchema, EventMetaSchema, MarshalMetadataKey,
 } from ".";
-import type {CommandFunction, HookFunction} from "./commands";
+import type {CommandFunction} from "./commands";
 import {CommandNotFoundMetaSchema} from "./commands";
 import {CommandManagerService} from "./commands/command-manager.service";
 
@@ -49,7 +49,9 @@ export abstract class Marshal {
             // Do things
             cms.registerCommand({
                 ...meta,
-                function: this.getBoundFunction<CommandFunction>(meta.functionName),
+                // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+                function: Reflect.get(this, meta.functionName).bind(this) as CommandFunction,
             });
             this._logger.debug(`Registered Command ${meta.spec.name}`);
         });
@@ -69,7 +71,9 @@ export abstract class Marshal {
             // Do things
             cms.registerNotFoundCommand({
                 ...meta,
-                function: this.getBoundFunction<HookFunction>(meta.functionName),
+                // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+                function: Reflect.get(this, meta.functionName).bind(this),
             });
         });
     }
@@ -85,7 +89,9 @@ export abstract class Marshal {
         const {data} = parseResult;
 
         data.forEach(meta => {
-            const f = this.getBoundFunction<EventFunction>(meta.functionName);
+            // We kinda need to act on faith here, if the implementer has decorated an unsafe function, we can't tell until runtime.
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+            const f = Reflect.get(this, meta.functionName).bind(this) as EventFunction;
             // Do things
             this.botClient.on(
                 meta.spec.event,
@@ -97,13 +103,5 @@ export abstract class Marshal {
             );
             this._logger.debug(`Registered Event ${meta.spec.event}`);
         });
-    }
-
-    private getBoundFunction<TFunction>(functionName: string): TFunction {
-        const handler = Reflect.get(this, functionName) as unknown;
-        if (typeof handler !== "function") {
-            throw new Error(`Marshal handler ${functionName} is not a function`);
-        }
-        return handler.bind(this) as unknown as TFunction;
     }
 }

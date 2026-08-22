@@ -360,7 +360,6 @@ export class Platform extends pulumi.ComponentResource {
                 ? undefined
                 : new SprocketService(`${name}-discord-bot`, {
                     ...this.buildDefaultConfiguration("discord-bot", args.configRoot),
-                    flags: { database: true },
                     secrets: [{
                         secretId: this.secrets.discordBotToken.id,
                         secretName: this.secrets.discordBotToken.name,
@@ -387,7 +386,6 @@ export class Platform extends pulumi.ComponentResource {
                 ? undefined
                 : new SprocketService(`${name}-notification-service`, {
                     ...this.buildDefaultConfiguration("notification-service", args.configRoot),
-                    flags: { database: true },
                     secrets: [{
                         secretId: this.secrets.redisPassword.id,
                         secretName: this.secrets.redisPassword.name,
@@ -398,7 +396,6 @@ export class Platform extends pulumi.ComponentResource {
                 ? undefined
                 : new SprocketService(`${name}-image-generation-service`, {
                     ...this.buildDefaultConfiguration("image-generation-service", args.configRoot),
-                    flags: { database: true },
                     secrets: [{
                         secretId: this.secrets.s3SecretKey.id,
                         secretName: this.secrets.s3SecretKey.name,
@@ -407,6 +404,10 @@ export class Platform extends pulumi.ComponentResource {
                         secretId: this.secrets.s3AccessKey.id,
                         secretName: this.secrets.s3AccessKey.name,
                         fileName: "/app/secret/minio-access.txt"
+                    }, {
+                        secretId: this.secrets.postgresPassword.id,
+                        secretName: this.secrets.postgresPassword.name,
+                        fileName: "/app/secret/db-secret.txt"
                     }]
                 }, { parent: this }),
 
@@ -414,7 +415,6 @@ export class Platform extends pulumi.ComponentResource {
                 ? undefined
                 : new SprocketService(`${name}-server-analytics-service`, {
                     ...this.buildDefaultConfiguration("server-analytics-service", args.configRoot),
-                    flags: { database: true },
                     networks: [
                         args.monitoringNetworkId,
                         args.ingressNetworkId
@@ -431,15 +431,14 @@ export class Platform extends pulumi.ComponentResource {
                 : new SprocketService(`${name}-matchmaking-service`, {
                     ...this.buildDefaultConfiguration("matchmaking-service", args.configRoot),
                     secrets: [{
-                        secretId: this.secrets.postgresPassword.id,
-                        secretName: this.secrets.postgresPassword.name,
-                        fileName: "/app/secret/db-password.txt"
+                        secretId: this.secrets.redisPassword.id,
+                        secretName: this.secrets.redisPassword.name,
+                        fileName: "/app/secret/redis-password.txt"
                     }]
                 }, { parent: this }),
 
             replayParse: new SprocketService(`${name}-replay-parse-service`, {
                 ...this.buildDefaultConfiguration("replay-parse-service", args.configRoot),
-                flags: { database: true },
                 env: {
                     ENV: "production",
                     CELERY_WORKER_MAX_TASKS_PER_CHILD: "50",
@@ -491,9 +490,9 @@ export class Platform extends pulumi.ComponentResource {
                         secretName: this.secrets.s3AccessKey.name,
                         fileName: "/app/secret/minio-access.txt"
                     }, {
-                        secretId: this.secrets.postgresPassword.id,
-                        secretName: this.secrets.postgresPassword.name,
-                        fileName: "/app/secret/db-password.txt"
+                        secretId: this.secrets.redisPassword.id,
+                        secretName: this.secrets.redisPassword.name,
+                        fileName: "/app/secret/redis-password.txt"
                     }]
                 })
         };
@@ -518,8 +517,8 @@ export class Platform extends pulumi.ComponentResource {
         ],
         configFile: { sourceFilePath: `${configRoot}/services/${name}.json` },
         configValues: {
-            transport: this.key.result.apply(key => JSON.stringify({
-                url: "",
+            transport: pulumi.all([this.datastore.rabbitmq.hostname, this.key.result]).apply(([rmqHost, key]) => JSON.stringify({
+                url: `amqp://${rmqHost}:5672?heartbeat=60`,
                 matchmaking_queue: `${pulumi.getStack()}-matchmaking`,
                 core_queue: `${pulumi.getStack()}-core`,
                 bot_queue: `${pulumi.getStack()}-bot`,
@@ -546,6 +545,9 @@ export class Platform extends pulumi.ComponentResource {
                 host: this.datastore.redis.hostname,
                 prefix: this.environmentSubdomain,
             },
+            rmq: {
+                host: this.datastore.rabbitmq.hostname
+            },
             influx: {
                 host: "http://influx:8086",
                 org: "sprocket",
@@ -563,7 +565,7 @@ export class Platform extends pulumi.ComponentResource {
                 }
             },
             celery: {
-                broker: "",
+                broker: this.datastore.rabbitmq?.hostname.apply((h: string) => `amqp://${h}?heartbeat=60`) ?? "",
                 backend: pulumi
                     .all([this.datastore.redis?.hostname, this.datastore.redis?.credentials.password])
                     .apply(([h, p]: [string, string]) => `redis://:${p}@${h}`) ?? "",

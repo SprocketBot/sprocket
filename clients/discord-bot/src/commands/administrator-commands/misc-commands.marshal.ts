@@ -26,7 +26,7 @@ export class MiscCommandsMarshal extends Marshal {
         args: [
             {
                 name: "type",
-                type: "string", // NOTE enum type parsing
+                type: "string", // TODO enum type parsing
                 docs: "The type of error to throw (CommandErrorType)",
             },
         ],

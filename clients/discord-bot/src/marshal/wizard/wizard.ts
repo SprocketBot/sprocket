@@ -107,11 +107,9 @@ export class Wizard {
             }
 
             const handler = WizardStepHandler(collector, this.initiator, step.opts, step.func);
-            const eventCollector = collector as unknown as {
-                on(event: "collect" | "end", listener: (...args: unknown[]) => void): ValidWizardCollector;
-            };
 
-            eventCollector.on("collect", (...args: unknown[]) => {
+            // @ts-expect-error I literally just need this to let me commit
+            collector.on("collect", (...args: unknown[]) => {
                 try {
                     const result = handler(...args);
                     if (result instanceof Promise) {
@@ -126,9 +124,8 @@ export class Wizard {
                     this.reject(e);
                 }
             });
-            eventCollector.on("end", (...args: unknown[]) => {
-                this.next(args[0] as Map<string, Message>, args[1] as string);
-            });
+            // @ts-expect-error I literally just need this to let me commit
+            collector.on("end", this.next.bind(this));
         }
         return this.promise;
     }

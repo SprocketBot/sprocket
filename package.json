@@ -11,11 +11,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "postinstall": "patch-package && npm run build:common",
+    "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
-    "build:monolith": "npm run build --workspace=apps/monolith",
-    "dev:monolith": "docker compose -f docker-compose.monolith.yml up --build monolith",
     "infra:install": "bash ./scripts/infra/pulumi-install-all.sh --with-foundation",
     "infra:backend:verify": "bash ./scripts/infra/verify-backend.sh",
     "infra:preview": "bash ./scripts/infra/preview.sh",
@@ -52,12 +50,11 @@
     "ci:infra:run": "bash ./scripts/infra/run-pulumi.sh",
     "ci:infra:verify-backend": "bash ./scripts/infra/verify-backend.sh",
     "clean": "npm run clean --workspaces --if-available",
-    "lint": "npm run lint --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-available",
     "format": "prettier --write ."
   },
   "workspaces": [
     "common",
-    "apps/monolith",
     "core",
     "infra/global",
     "infra/layer_1",
@@ -84,7 +81,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
     "husky": "^7.0.4",
-    "patch-package": "^8.0.1",
     "prettier": "^2.6.2"
   },
   "lint-staged": {
@@ -96,7 +92,6 @@
     "@types/node-fetch": "^2.6.13",
     "formdata-node": "^6.0.3",
     "graphql-request": "^7.4.0",
-    "node-fetch": "^2.7.0",
-    "passport-jwt": "^4.0.1"
+    "node-fetch": "^2.7.0"
   }
 }

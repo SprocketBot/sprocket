@@ -9,7 +9,6 @@ import {
     subscriptionExchange,
 } from "@urql/core";
 import {multipartFetchExchange} from "@urql/exchange-multipart-fetch";
-import {apiUrl, wsApiUrl} from "$lib/utils";
 
 let clientAvailable: CallableFunction;
 
@@ -25,8 +24,10 @@ export function initializeClient(sessionInput: App.Session): void {
         sessionData = d;
     });
 
+    const {secure, gqlUrl} = sessionData.config;
+
     const wsClient = browser
-        ? new SubscriptionClient(wsApiUrl(sessionData.config, "/graphql"), {
+        ? new SubscriptionClient(`ws${secure ? "s" : ""}://${gqlUrl}/graphql`, {
             minTimeout: 10000,
             reconnect: true,
             lazy: true,
@@ -35,7 +36,7 @@ export function initializeClient(sessionInput: App.Session): void {
         : null;
 
     client = new Client({
-        url: apiUrl(sessionData.config, "/graphql"),
+        url: `http${secure ? "s" : ""}://${gqlUrl}/graphql`,
         exchanges: [
             dedupExchange,
             cacheExchange,

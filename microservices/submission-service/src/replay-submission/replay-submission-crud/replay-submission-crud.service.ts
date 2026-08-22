@@ -1,15 +1,17 @@
 import {Injectable} from "@nestjs/common";
 import type {
-    CompatibleReplaySubmission,
-    EnhancedReplaySubmission,
-    FranchiseInfo,
+    BaseReplaySubmission,
+    LFSReplaySubmission,
     ProgressMessage,
-    RatifierInfo,
     ReplaySubmission,
     ReplaySubmissionItem,
     ReplaySubmissionRejection,
     ReplaySubmissionStats,
+    ScrimReplaySubmission,
     Task,
+} from "@sprocketbot/common";
+import type {
+    EnhancedReplaySubmission, FranchiseInfo, RatifierInfo,
 } from "@sprocketbot/common";
 import {
     CoreEndpoint,
@@ -17,6 +19,7 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     OrganizationConfigurationKeyCode,
+    RedisService,
     ReplaySubmissionStatus,
     ReplaySubmissionType,
     ResponseStatus,
@@ -24,24 +27,30 @@ import {
 } from "@sprocketbot/common";
 
 import {
-    submissionIsLFS, submissionIsMatch, submissionIsScrim,
+    getSubmissionKey,
+    submissionIsLFS,
+    submissionIsMatch,
+    submissionIsScrim,
 } from "../../utils";
-import {ReplaySubmissionPostgresRepository} from "../persistence/replay-submission-postgres.repository";
 
 @Injectable()
 export class ReplaySubmissionCrudService {
     constructor(
-        private readonly repository: ReplaySubmissionPostgresRepository,
+        private readonly redisService: RedisService,
         private readonly matchmakingService: MatchmakingService,
         private readonly coreService: CoreService,
     ) {}
 
     async getAllSubmissions(): Promise<ReplaySubmission[]> {
-        return this.repository.findAll() as Promise<ReplaySubmission[]>;
+    // Use wildcard for submissionId to list all matching keys
+        const submissionKeys = await this.redisService.getKeys(getSubmissionKey("*"));
+        const submissions = await Promise.all(submissionKeys.map<Promise<ReplaySubmission>>(async key => this.redisService.getJson<ReplaySubmission>(key)));
+        return submissions;
     }
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission | undefined> {
-        return this.repository.findById(submissionId) as Promise<ReplaySubmission | undefined>;
+        const key = getSubmissionKey(submissionId);
+        return this.redisService.getJson<ReplaySubmission | undefined>(key);
     }
 
     async getOrgRequiredRatifications(organizationId: number): Promise<number> {
@@ -57,8 +66,9 @@ export class ReplaySubmissionCrudService {
     }
 
     async getOrCreateSubmission(submissionId: string, playerId: number): Promise<ReplaySubmission> {
-        const existingSubmission = await this.repository.findById(submissionId);
-        if (existingSubmission && !existingSubmission.items.length) return existingSubmission as ReplaySubmission;
+        const key = getSubmissionKey(submissionId);
+        const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
+        if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
 
         const commonFields = {
             id: submissionId,
@@ -70,9 +80,9 @@ export class ReplaySubmissionCrudService {
             ratifiers: [],
             rejections: [],
             stats: undefined,
-            requiredRatifications: 2, // NOTE Make this configurable.
+            requiredRatifications: 2, // TODO Make this configurable.
         };
-        let submission: EnhancedReplaySubmission;
+        let submission: any;
         let configMinRatify: number; // From the Organization config.
         let minRatify: number; // The actual minimum number of ratifiers.
         let maxRatify: number; // Total number of players.
@@ -134,7 +144,7 @@ export class ReplaySubmissionCrudService {
                 },
             };
 
-            // NOTE: Match type does not currently have player/team info or organization ID.
+            // TODO: Match type does not currently have player/team info or organization ID.
             //       This is currently being hardcoded to 2 to avoid changing existing behavior.
             configMinRatify = 2;
             maxRatify = configMinRatify;
@@ -144,55 +154,69 @@ export class ReplaySubmissionCrudService {
 
         if (configMinRatify === SCRIM_REQ_RATIFICATION_MAJORITY) {
             // The submission is configured to require a majority of ratifiers.
-            minRatify = Math.floor(maxRatify / 2) + 1;
+            minRatify = maxRatify / 2 + 1;
         } else {
             // Simply take the configured amount, capped to the number of players.
             minRatify = Math.min(configMinRatify, maxRatify);
         }
         submission.requiredRatifications = minRatify;
 
-        await this.repository.saveSubmission(submission);
-        return submission as unknown as ReplaySubmission;
+        await this.redisService.setJson(key, submission);
+        return submission;
     }
 
     async getSubmissionItems(submissionId: string): Promise<ReplaySubmissionItem[]> {
-        return this.repository.getItems(submissionId);
+        const key = getSubmissionKey(submissionId);
+        return this.redisService.getJson<ReplaySubmissionItem[]>(key, "items");
     }
 
     async getSubmissionRejections(submissionId: string): Promise<ReplaySubmissionRejection[]> {
-        return this.repository.getRejections(submissionId);
+        const key = getSubmissionKey(submissionId);
+        return this.redisService.getJson<ReplaySubmissionRejection[]>(key, "rejections");
     }
 
     async getSubmissionRatifiers(submissionId: string): Promise<number[] | RatifierInfo[]> {
-        return this.repository.getRatifiers(submissionId);
+        const key = getSubmissionKey(submissionId);
+        return this.redisService.getJson<number[] | RatifierInfo[]>(key, "ratifiers");
     }
 
     async removeSubmission(submissionId: string): Promise<void> {
-        return this.repository.delete(submissionId);
+        const key = getSubmissionKey(submissionId);
+        return this.redisService.delete(key);
     }
 
     async removeItems(submissionId: string): Promise<void> {
-        await this.repository.replaceItems(submissionId, []);
+        await this.redisService.setJsonField(getSubmissionKey(submissionId), "items", []);
     }
 
     async updateStatus(
         submissionId: string,
         submissionStatus: ReplaySubmissionStatus,
     ): Promise<void> {
-        await this.repository.updateStatus(submissionId, submissionStatus);
+        await this.redisService.setJsonField(
+            getSubmissionKey(submissionId),
+            "status",
+            submissionStatus,
+        );
     }
 
     async upsertItem(submissionId: string, item: ReplaySubmissionItem): Promise<void> {
-        const existingItems = await this.repository.getItems(submissionId);
-        if (existingItems.some(ei => ei.taskId === item.taskId)) {
+        const key = getSubmissionKey(submissionId);
+
+        const existingItems = await this.redisService.getJson<ReplaySubmissionItem[] | undefined>(
+            key,
+            ".items",
+        );
+        if (existingItems?.some(ei => ei.taskId === item.taskId)) {
             // The task is already in the array
             const t = {
                 ...existingItems.find(ei => ei.taskId === item.taskId)!,
                 ...item,
             };
-            await this.repository.upsertItem(submissionId, t);
+            const i = existingItems.findIndex(ei => ei.taskId === item.taskId);
+            await this.redisService.setJsonField(key, `items[${i}]`, t);
         } else {
-            await this.repository.upsertItem(submissionId, item);
+            await this.redisService.appendToJsonArray(key, "items", item);
         }
     }
 
@@ -208,11 +232,13 @@ export class ReplaySubmissionCrudService {
     }
 
     async setValidatedTrue(submissionId: string): Promise<void> {
-        await this.repository.setValidated(submissionId, true);
+        const key = getSubmissionKey(submissionId);
+        await this.redisService.setJsonField(key, "validated", true);
     }
 
     async setStats(submissionId: string, stats: ReplaySubmissionStats): Promise<void> {
-        await this.repository.setStats(submissionId, stats);
+        const key = getSubmissionKey(submissionId);
+        await this.redisService.setJsonField(key, "stats", stats);
     }
 
     async addRatifier(submissionId: string, userId: number): Promise<void> {
@@ -233,7 +259,7 @@ export class ReplaySubmissionCrudService {
                 userId: userId,
             });
 
-            if (franchiseResult.status !== ResponseStatus.SUCCESS || franchiseResult.data.length === 0) {
+            if (franchiseResult.status !== ResponseStatus.SUCCESS || !franchiseResult.data || franchiseResult.data.length === 0) {
                 throw new Error(`Unable to fetch franchise information for player ${userId}. Ratification requires valid franchise data.`);
             }
 
@@ -280,9 +306,26 @@ export class ReplaySubmissionCrudService {
                 ratifiedAt: new Date().toISOString(),
             };
 
-            await this.repository.addEnhancedRatifier(submissionId, ratifierInfo);
+            await this.redisService.appendToJsonArray(
+                getSubmissionKey(submissionId),
+                "ratifiers",
+                ratifierInfo,
+            );
+
+            // Update currentFranchiseCount
+            const updatedRatifiers = [...(ratifiers as any[]), ratifierInfo];
+            const uniqueFranchiseCount = new Set(updatedRatifiers.map(r => r.franchiseId)).size;
+            await this.redisService.setJsonField(
+                getSubmissionKey(submissionId),
+                "franchiseValidation.currentFranchiseCount",
+                uniqueFranchiseCount,
+            );
         } else {
-            await this.repository.addNumericRatifier(submissionId, userId);
+            await this.redisService.appendToJsonArray(
+                getSubmissionKey(submissionId),
+                "ratifiers",
+                userId,
+            );
         }
     }
 
@@ -292,22 +335,30 @@ export class ReplaySubmissionCrudService {
         return (ratifiers as RatifierInfo[]).map(r => r.playerId);
     }
 
-    private isEnhanced(submission: CompatibleReplaySubmission): submission is EnhancedReplaySubmission {
+    private isEnhanced(submission: any): submission is EnhancedReplaySubmission {
         return "franchiseValidation" in submission;
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     async clearRatifiers(submissionId: string): Promise<void> {
-        await this.repository.clearRatifiers(submissionId);
+        const key = getSubmissionKey(submissionId);
+        await this.redisService.setJsonField(key, "ratifiers", []);
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     async expireRejections(submissionId: string): Promise<void> {
-        await this.repository.expireRejections(submissionId);
+        const key = getSubmissionKey(submissionId);
+        // We need to make sure this array exists, otherwise multipathing breaks
+        const len = (await this.redisService.redis.send_command(
+            "JSON.ARRLEN",
+            key,
+            "rejections",
+        )) as number;
+        if (len) {
+            await this.redisService.setJsonField(key, `rejections..stale`, true);
+        }
     }
 
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     async addRejection(submissionId: string, playerId: number, reason: string): Promise<void> {
+        const key = getSubmissionKey(submissionId);
         const rejectedAt = new Date().toISOString();
 
         const fullItems = await this.getSubmissionItems(submissionId);
@@ -328,6 +379,6 @@ export class ReplaySubmissionCrudService {
         };
 
         await this.clearRatifiers(submissionId);
-        await this.repository.addRejection(submissionId, rejection);
+        await this.redisService.appendToJsonArray(key, "rejections", rejection);
     }
 }

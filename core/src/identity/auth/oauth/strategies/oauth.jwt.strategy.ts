@@ -4,7 +4,6 @@ import {config} from "@sprocketbot/common";
 import {ExtractJwt, Strategy} from "passport-jwt";
 
 import type {AuthPayload, UserPayload} from "../types";
-import {validateUserPayload} from "../validated-user-payload";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -17,6 +16,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: AuthPayload): Promise<UserPayload> {
-        return validateUserPayload(payload, "JWT access token");
+        return {
+            userId: payload.userId,
+            username: payload.username,
+            currentOrganizationId: payload.currentOrganizationId,
+            orgTeams: payload.orgTeams ?? [],
+        };
     }
 }

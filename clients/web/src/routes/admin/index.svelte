@@ -5,8 +5,6 @@
         AdminScrimTable,
         AdminSettings,
         AdminSubmissionTable,
-        TestScrimCreate,
-        UploadReplaysModal,
         DashboardCard,
         DashboardLayout,
     } from "$lib/components";
@@ -26,17 +24,6 @@
     };
 </script>
 
-<script lang="ts">
-    let testScrimModalVisible = false;
-    let testUploadVisible = false;
-    let testSubmissionId = "";
-
-    function onTestScrimCreated(submissionId: string) {
-        testSubmissionId = submissionId;
-        testUploadVisible = true;
-    }
-</script>
-
 <DashboardLayout>
     <DashboardCard
         title="Admin Settings"
@@ -53,13 +40,6 @@
         <div class=" flex justify-center">
             <AdminScrimTable />
         </div>
-    </DashboardCard>
-    <DashboardCard
-        title="End-to-End Test Scrim"
-        class="col-span-6 xl:col-span-5 row-span-1"
-    >
-        <p class="mb-4 text-sm opacity-80">Create an isolated one-replay scrim and run the production parser and finalizer.</p>
-        <button class="btn btn-warning" on:click={() => { testScrimModalVisible = true }}>Create Test Scrim</button>
     </DashboardCard>
     <DashboardCard
         title="Submission Management"
@@ -86,8 +66,3 @@
         </div>
     </DashboardCard>
 </DashboardLayout>
-
-<TestScrimCreate bind:visible={testScrimModalVisible} onCreated={onTestScrimCreated} />
-{#if testSubmissionId}
-    <UploadReplaysModal bind:visible={testUploadVisible} submissionId={testSubmissionId} single />
-{/if}

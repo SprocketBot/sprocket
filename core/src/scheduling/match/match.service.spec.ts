@@ -15,16 +15,15 @@ import {Test} from "@nestjs/testing";
 import {getRepositoryToken} from "@nestjs/typeorm";
 import {DataSource} from "typeorm";
 
-import {Team} from "$db/franchise/team/team.model";
 import {GameMode} from "$db/game/game_mode/game_mode.model";
+import {Team} from "$db/franchise/team/team.model";
 import {Invalidation} from "$db/scheduling/invalidation/invalidation.model";
 import {Match} from "$db/scheduling/match/match.model";
 import {MatchParent} from "$db/scheduling/match_parent/match_parent.model";
 import {Round} from "$db/scheduling/round/round.model";
-
 import {EloConnectorService} from "../../elo/elo-connector";
-import createMockRepository from "../../util/MockRepository";
 import {PopulateService} from "../../util/populate/populate.service";
+import createMockRepository from "../../util/MockRepository";
 import {MatchService} from "./match.service";
 
 describe("MatchService", () => {
@@ -32,8 +31,8 @@ describe("MatchService", () => {
     let roundRepository: ReturnType<typeof createMockRepository>;
     let teamRepository: ReturnType<typeof createMockRepository>;
     let matchRepository: ReturnType<typeof createMockRepository>;
-    let populateService: {populateOneOrFail: jest.Mock;};
-    let eloConnectorService: {createJob: jest.Mock;};
+    let populateService: {populateOneOrFail: jest.Mock};
+    let eloConnectorService: {createJob: jest.Mock};
 
     beforeEach(async () => {
         populateService = {populateOneOrFail: jest.fn()};
@@ -48,7 +47,7 @@ describe("MatchService", () => {
                 {provide: getRepositoryToken(MatchParent), useValue: createMockRepository()},
                 {provide: getRepositoryToken(Invalidation), useValue: createMockRepository()},
                 {provide: getRepositoryToken(GameMode), useValue: createMockRepository()},
-                {provide: DataSource, useValue: {} },
+                {provide: DataSource, useValue: {}},
                 {provide: PopulateService, useValue: populateService},
                 {provide: EloConnectorService, useValue: eloConnectorService},
             ],
@@ -64,7 +63,7 @@ describe("MatchService", () => {
     // section of markReplaysNcp. homeFranchiseId controls which team "owns" the home side.
     function setupFixturePath(homeFranchiseId: number): void {
         matchRepository.findOneOrFail.mockResolvedValue({
-            matchParent: {fixture: {homeFranchiseId} },
+            matchParent: {fixture: {homeFranchiseId}},
         });
         populateService.populateOneOrFail
             .mockResolvedValueOnce({id: homeFranchiseId})  // homeFranchise
@@ -86,15 +85,11 @@ describe("MatchService", () => {
 
         it("excludes dummy replays from the elo recalculation job", async () => {
             teamRepository.findOne.mockResolvedValue({
-                id: 49, franchise: {id: 10, profile: {title: "Test Franchise"} },
+                id: 49, franchise: {id: 10, profile: {title: "Test Franchise"}},
             });
             roundRepository.findOneOrFail
-                .mockResolvedValueOnce({
-                    id: 1, isDummy: false, match: {id: 99, skillGroupId: 1}, teamStats: [],
-                })
-                .mockResolvedValueOnce({
-                    id: 2, isDummy: true, match: {id: 99, skillGroupId: 1}, teamStats: [],
-                });
+                .mockResolvedValueOnce({id: 1, isDummy: false, match: {id: 99, skillGroupId: 1}, teamStats: []})
+                .mockResolvedValueOnce({id: 2, isDummy: true, match: {id: 99, skillGroupId: 1}, teamStats: []});
             setupFixturePath(10);
             teamRepository.findOneOrFail.mockResolvedValue({id: 49});
 

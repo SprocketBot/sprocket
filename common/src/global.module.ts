@@ -1,58 +1,106 @@
 import {Global, Module} from "@nestjs/common";
-import {ClientsModule} from "@nestjs/microservices";
+import {ClientsModule, Transport} from "@nestjs/microservices";
 
 import {CommonClient} from "./global.types";
-import {PostgresClientProxy} from "./postgres-transport";
 import {config} from "./util/config";
 
 const client = ClientsModule.register([
     {
         name: CommonClient.Analytics,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.analytics_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.Bot,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.bot_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.Matchmaking,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.matchmaking_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.ImageGeneration,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.image_generation_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.Core,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.Submission,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.submission_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
     {
         name: CommonClient.Notification,
-        customClass: PostgresClientProxy,
+        transport: Transport.RMQ,
         options: {
+            urls: [config.transport.url] as string[],
             queue: config.transport.notification_queue,
+            queueOptions: {
+                durable: true,
+            },
+            socketOptions: {
+                heartbeat: 120,
+            },
         },
     },
 ]);

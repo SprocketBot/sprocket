@@ -34,7 +34,7 @@ export interface ActiveSubmissionsStoreVariables {}
 
 export interface ActiveSubmissionsSubscriptionVariables {}
 
-// NOTE use a LiveQueryStore to have realtime updates. This way will require refresh
+// TODO use a LiveQueryStore to have realtime updates. This way will require refresh
 export class ActiveSubmissionsStore extends QueryStore<
 ActiveSubmissionsStoreValue,
 ActiveSubmissionsStoreVariables

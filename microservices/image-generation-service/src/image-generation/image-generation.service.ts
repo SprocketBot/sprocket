@@ -7,7 +7,7 @@ import {
     existsSync, mkdirSync, writeFileSync,
 } from "fs";
 import {JSDOM} from "jsdom";
-import sharp from "sharp";
+import * as sharp from "sharp";
 
 import {SvgTransformationService} from "./svg-transformation/svg-transformation.service";
 
@@ -96,7 +96,7 @@ export class ImageGenerationService {
                 metadata: {
                     "Content-Type": "image/svg+xml",
                 },
-                publicRead: publicRead,
+                publicRead,
             },
         );
         await this.minioService.put(
@@ -108,7 +108,7 @@ export class ImageGenerationService {
                 metadata: {
                     "Content-Type": "image/png",
                 },
-                publicRead: publicRead,
+                publicRead,
             },
         );
 

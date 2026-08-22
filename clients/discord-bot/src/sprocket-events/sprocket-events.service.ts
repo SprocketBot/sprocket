@@ -80,7 +80,7 @@ export class SprocketEventsService extends SprocketEventMarshal {
         await member.roles.add(newRole.id);
 
         // Set team on nickname
-        // NOTE not always Waiver Wire
+        // TODO not always Waiver Wire
         const teamCode = "WW";
         await member.setNickname(`${teamCode} | ${payload.name}`);
     }

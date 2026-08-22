@@ -1,5 +1,4 @@
 export {default as ScrimTable} from "./ScrimTable.svelte";
-export {default as TestScrimCreate} from "./TestScrimCreate.svelte";
 export {default as ScrimCard} from "./ScrimCard.svelte";
 export {default as ScrimFullIndicator} from "./ScrimFullIndicator.svelte";
 export {default as AdminScrimTable} from "./AdminScrimTable.svelte";

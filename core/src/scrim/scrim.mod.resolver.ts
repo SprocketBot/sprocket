@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import {
     Inject, Logger, UseGuards,
 } from "@nestjs/common";
@@ -32,7 +30,7 @@ import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
 import {
-    CreateLFSScrimInput, CreateScrimInput, CreateTestScrimInput, Scrim, ScrimEvent,
+    CreateLFSScrimInput, CreateScrimInput, Scrim, ScrimEvent,
 } from "./types";
 import {ScrimMetrics} from "./types/ScrimMetrics";
 
@@ -89,11 +87,9 @@ export class ScrimModuleResolver {
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
 
-        const scrims = await this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            status,
-        });
-        return scrims.filter(scrim => !scrim.testRunId) as Scrim[];
+        const scrims = await this.scrimService.getAllScrims();
+        if (status) return scrims.filter(s => s.status === status) as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
     }
 
     @Query(() => [Scrim])
@@ -113,14 +109,11 @@ export class ScrimModuleResolver {
             where: {member: {user: {id: user.userId} } },
             relations: ["member", "skillGroup"],
         });
-        const skillGroupIds = players.map(p => p.skillGroupId);
-        const scrims = await this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            status,
-            skillGroupIds,
-        });
+        const scrims = await this.scrimService.getAllScrims();
 
-        return scrims.filter(s => !s.settings.competitive || skillGroupIds.includes(s.skillGroupId)) as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+        && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
+        && s.status === status) as Scrim[];
     }
 
     @Query(() => [Scrim])
@@ -128,10 +121,8 @@ export class ScrimModuleResolver {
     async getLFSScrims(@CurrentUser() user: UserPayload): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
-        return this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            lfs: true,
-        }) as Promise<Scrim[]>;
+        const scrims = await this.scrimService.getAllScrims();
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId && s.settings.lfs) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
@@ -193,21 +184,6 @@ export class ScrimModuleResolver {
                 createGroup: data.createGroup,
             },
         }) as Promise<Scrim>;
-    }
-
-    @Mutation(() => Scrim)
-    @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
-    async createTestScrim(
-    @CurrentUser() user: UserPayload,
-    @Args("data") data: CreateTestScrimInput,
-    ): Promise<Scrim> {
-        if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
-        return this.scrimService.createTestScrim(
-            user.userId,
-            user.currentOrganizationId,
-            data.gameModeId,
-            data.skillGroupId,
-        ) as Promise<Scrim>;
     }
 
     @Mutation(() => Scrim)

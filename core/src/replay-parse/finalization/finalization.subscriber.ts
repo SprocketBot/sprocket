@@ -1,9 +1,11 @@
 import {Injectable, Logger} from "@nestjs/common";
-import type {Scrim} from "@sprocketbot/common";
+import type {ReplaySubmission, Scrim} from "@sprocketbot/common";
 import {
     EventsService,
     EventTopic,
+    RedisService,
     ReplaySubmissionType,
+    ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
 } from "@sprocketbot/common";
@@ -26,6 +28,7 @@ export class FinalizationSubscriber {
         private readonly eventsService: EventsService,
         private readonly rocketLeagueFinalizationService: RocketLeagueFinalizationService,
         private readonly submissionService: SubmissionService,
+        private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
         private readonly matchService: MatchService,
         private readonly eloConnectorService: EloConnectorService,
@@ -39,24 +42,24 @@ export class FinalizationSubscriber {
             .then(rx => {
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
                 rx.subscribe(async ({payload}) => {
-                    const submission = await this.replayParseService.getSubmission(payload.submissionId);
+                    const submission = await this.redisService.getJson<ReplaySubmission>(payload.redisKey);
 
                     if (submission.type === ReplaySubmissionType.MATCH) {
                         await this.onMatchSubmissionComplete(
-                            submission,
+                            submission as MatchReplaySubmission,
                             payload.submissionId,
                         );
                     } else if (submission.type === ReplaySubmissionType.SCRIM) {
                         const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                         await this.onScrimComplete(
-                            submission,
+                            submission as ScrimReplaySubmission,
                             payload.submissionId,
                             scrim,
                         );
                     } else if (submission.type === ReplaySubmissionType.LFS) {
                         const scrim = await this.scrimService.getScrimBySubmissionId(payload.submissionId);
                         await this.onLFSComplete(
-                            submission,
+                            submission as LFSReplaySubmission,
                             payload.submissionId,
                             scrim,
                         );
@@ -155,6 +158,14 @@ export class FinalizationSubscriber {
         submission: MatchReplaySubmission,
         submissionId: string,
     ): Promise<void> => {
+        const keyResponse = await this.submissionService.send(
+            SubmissionEndpoint.GetSubmissionRedisKey,
+            {submissionId},
+        );
+        if (keyResponse.status === ResponseStatus.ERROR) {
+            this.logger.warn(keyResponse.error.message);
+            return;
+        }
         try {
             const {match, legacyMatch} = await this.rocketLeagueFinalizationService
                 .finalizeMatch(submission)

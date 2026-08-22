@@ -12,13 +12,10 @@
     };
 </script>
 
-<tr>
+<tr on:click={onClick} class="cursor-pointer">
     <td>{submission.id}</td>
     <td>{submission.type}</td>
     <td>{scrimIdOrMatchId}</td>
     <td>{submission.creatorId}</td>
     <td>{submission.status}</td>
-    <td>
-        <button type="button" class="btn btn-xs btn-primary" on:click={onClick}>Details</button>
-    </td>
 </tr>

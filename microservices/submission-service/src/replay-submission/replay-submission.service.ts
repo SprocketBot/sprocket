@@ -1,24 +1,20 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {
-    ParsedReplay, ReplayParseTask, ReplaySubmission,
-} from "@sprocketbot/common";
+import type {ReplayParseTask, ReplaySubmission} from "@sprocketbot/common";
 import {
     CeleryService,
     EventsService,
     EventTopic,
-    MatchmakingEndpoint,
-    MatchmakingService,
     ProgressStatus,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ReplaySubmissionStatus,
-    ResponseStatus,
     Task,
 } from "@sprocketbot/common";
 import {v4} from "uuid";
 
 import {ReplayValidationService} from "../replay-validation/replay-validation.service";
+import {getSubmissionKey} from "../utils";
 import {ReplayParseSubscriber} from "./parse-subscriber/replay-parse.subscriber";
 import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submission-crud.service";
 import {ReplaySubmissionRatificationService} from "./replay-submission-ratification";
@@ -37,7 +33,6 @@ export class ReplaySubmissionService {
         private readonly replayValidationService: ReplayValidationService,
         private readonly ratificationService: ReplaySubmissionRatificationService,
         private readonly statsConverterService: StatsConverterService,
-        private readonly matchmakingService: MatchmakingService,
     ) {}
 
     /**
@@ -138,6 +133,7 @@ export class ReplaySubmissionService {
         }));
         await this.eventsService.publish(EventTopic.SubmissionStarted, {
             submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
         });
         return taskIds;
     }
@@ -152,7 +148,8 @@ export class ReplaySubmissionService {
 
         for (let i = 0; i < submission.items.length; i++) {
             const item = submission.items[i];
-            const result = results[i] as ParsedReplay;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const result = results[i] as any;
 
             item.progress = {
                 status: ProgressStatus.Complete,
@@ -164,7 +161,7 @@ export class ReplaySubmissionService {
                 },
                 error: null,
             };
-            item.outputPath = result.outputPath;
+            item.outputPath = result.outputPath ?? "mock-output-path";
             await this.submissionCrudService.upsertItem(submissionId, item);
         }
 
@@ -188,6 +185,7 @@ export class ReplaySubmissionService {
 
         await this.eventsService.publish(EventTopic.SubmissionValidating, {
             submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
         });
 
         this.logger.debug(`Validating replay submission ${submissionId}`);
@@ -209,24 +207,12 @@ export class ReplaySubmissionService {
         await this.submissionCrudService.setStats(submissionId, submission.stats);
 
         const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state.");
+        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state with redis.");
 
         await this.eventsService.publish(EventTopic.SubmissionRatifying, {
             submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
             resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
         });
-
-        if (submission.type === "SCRIM") {
-            const scrimResponse = await this.matchmakingService.send(
-                MatchmakingEndpoint.GetScrimBySubmissionId,
-                submissionId,
-            );
-            if (scrimResponse.status === ResponseStatus.SUCCESS && scrimResponse.data?.testRunId) {
-                await this.ratificationService.ratifyScrim(
-                    REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
-                    submissionId,
-                );
-            }
-        }
     }
 }

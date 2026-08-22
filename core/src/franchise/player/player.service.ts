@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -27,16 +25,17 @@ import type {
 import {DataSource, Repository} from "typeorm";
 
 import {Player} from "../../database/franchise/player/player.model";
-import type {Platform} from "../../database/game/platform/platform.model";
 import {User} from "../../database/identity/user/user.model";
 import {UserAuthenticationAccount} from "../../database/identity/user_authentication_account/user_authentication_account.model";
 import {UserAuthenticationAccountType} from "../../database/identity/user_authentication_account/user_authentication_account_type.enum";
 import {UserProfile} from "../../database/identity/user_profile/user_profile.model";
 import {
-    League, LeagueOrdinals, MLE_Platform, ModePreference, Role, Timezone,
+    League, LeagueOrdinals, ModePreference, MLE_Platform, Role, Timezone,
 } from "../../database/mledb";
 import {MLE_Player} from "../../database/mledb/Player.model";
 import {PlayerToPlayer} from "../../database/mledb-bridge/player_to_player.model";
+import {GameSkillGroup} from "../../database/franchise/game_skill_group/game_skill_group.model";
+import {Platform} from "../../database/game/platform/platform.model";
 import {Member} from "../../database/organization/member/member.model";
 import {MemberProfile} from "../../database/organization/member_profile/member_profile.model";
 import {Organization} from "../../database/organization/organization/organization.model";
@@ -49,12 +48,13 @@ import {
 } from "../../elo/elo-connector";
 import {PlatformService} from "../../game";
 import {MledbPlayerAccountService} from "../../mledb";
+import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {OrganizationService} from "../../organization";
 import {MemberService} from "../../organization/member/member.service";
-import {MemberPlatformAccountService} from "../../organization/member-platform-account";
 import {GameSkillGroupService} from "../game-skill-group";
 import {RosterAuthorityService} from "../roster-authority.service";
-import type {CreatePlayerTuple, RankdownJwtPayload} from "./player.types";
+import type {RankdownJwtPayload} from "./player.types";
+import type {CreatePlayerTuple} from "./player.types";
 
 @Injectable()
 export class PlayerService {
@@ -99,7 +99,9 @@ export class PlayerService {
         try {
             await this.rosterAuthorityService.syncFromMlePlayerId(mlePlayerId);
         } catch (err) {
-            this.logger.warn(`Roster authority sync failed for MLE player ${mlePlayerId}: ${err instanceof Error ? err.message : String(err)}`);
+            this.logger.warn(
+                `Roster authority sync failed for MLE player ${mlePlayerId}: ${err instanceof Error ? err.message : String(err)}`,
+            );
         }
     }
 
@@ -313,7 +315,9 @@ export class PlayerService {
             relations: {game: true},
         });
         if (skillGroup.game.id !== 7) {
-            this.logger.warn(`Steam account IDs supplied for non-Rocket-League skill group ${skillGroup.id}; skipping platform link`);
+            this.logger.warn(
+                `Steam account IDs supplied for non-Rocket-League skill group ${skillGroup.id}; skipping platform link`,
+            );
             return;
         }
 
@@ -365,12 +369,12 @@ export class PlayerService {
         const skillGroup = await this.skillGroupService.getGameSkillGroupById(skillGroupId);
 
         const runner = this.dataSource.createQueryRunner();
+        await runner.connect();
+        await runner.startTransaction();
 
         let player: Player;
 
         try {
-            await runner.connect();
-            await runner.startTransaction();
             const mlePlayer = await this.mle_playerRepository.findOne({
                 where: {mleid},
             });
@@ -419,11 +423,11 @@ export class PlayerService {
                 await this.syncRosterAuthorityAfterMleSave(mleAfter.id);
             }
         } catch (e) {
-            if (runner.isTransactionActive) await runner.rollbackTransaction();
+            await runner.rollbackTransaction();
             this.logger.error(e);
             throw e;
         } finally {
-            if (!runner.isReleased) await runner.release();
+            await runner.release();
         }
 
         return player;
@@ -994,7 +998,7 @@ export class PlayerService {
         await this.syncRosterAuthorityAfterMleSave(player.id);
 
         // Move player to Waiver Wire
-        // NOTE fix later when we abstract away from MLE
+        // TODO fix later when we abstract away from MLE
         await this.eventsService.publish(EventTopic.PlayerTeamChanged, {
             organizationId: sprocketPlayer.member.organizationId,
             discordId: discId.accountId,
@@ -1122,7 +1126,7 @@ export class PlayerService {
                 request: data,
             };
         } catch (e) {
-            this.logger.error(`getPlayerByGameAndPlatformPayload failed: ${e instanceof Error ? e.message : JSON.stringify(e)}`);
+            this.logger.error(`getPlayerByGameAndPlatformPayload failed: ${e}`);
             return {
                 success: false,
                 request: data,
@@ -1164,8 +1168,6 @@ export class PlayerService {
             this.logger.log(`Started database transaction`);
         } catch (e) {
             this.logger.error(`Failed to start transaction: ${e instanceof Error ? e.message : String(e)}`);
-            if (runner.isTransactionActive) await runner.rollbackTransaction();
-            if (!runner.isReleased) await runner.release();
             throw e;
         }
 
@@ -1422,13 +1424,13 @@ export class PlayerService {
             this.logger.error(`Stack trace: ${e instanceof Error ? e.stack : "N/A"}`);
 
             this.logger.log(`Rolling back transaction...`);
-            if (runner.isTransactionActive) await runner.rollbackTransaction();
+            await runner.rollbackTransaction();
             this.logger.log(`Transaction rolled back`);
 
             return e instanceof Error ? e.message : String(e);
         } finally {
             this.logger.log(`Releasing query runner...`);
-            if (!runner.isReleased) await runner.release();
+            await runner.release();
             this.logger.log(`Query runner released`);
         }
     }
@@ -1497,4 +1499,3 @@ export class PlayerService {
         await this.memberProfileRepository.save(member.profile);
     }
 }
-/* eslint-disable @typescript-eslint/member-ordering */

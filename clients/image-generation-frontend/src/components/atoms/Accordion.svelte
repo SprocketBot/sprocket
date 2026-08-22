@@ -3,7 +3,6 @@
     export let shown = false;
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div on:click={() => { shown = !shown }}>
     <slot name="header" {shown}/>
 </div>
