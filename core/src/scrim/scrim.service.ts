@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
-
 import {
     Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -11,7 +9,6 @@ import type {
     CreateLFSScrimRequest,
     CreateScrimOptions,
     JoinScrimOptions,
-    MatchmakingInput,
     Scrim as IScrim,
     ScrimMetrics as IScrimMetrics,
 } from "@sprocketbot/common";
@@ -21,18 +18,15 @@ import {
     MatchmakingEndpoint,
     MatchmakingService,
     ResponseStatus,
-    ScrimMode,
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
 import {Repository} from "typeorm";
-import {v4 as uuid} from "uuid";
 
 import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
 
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
-import {GameModeService} from "../game";
 import {MledbFinalizationService} from "../mledb";
 import {MemberService} from "../organization";
 import {ScrimPubSub} from "./constants";
@@ -48,7 +42,6 @@ export class ScrimService {
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         private readonly gameSkillGroupService: GameSkillGroupService,
-        private readonly gameModeService: GameModeService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
         private readonly mleScrimService: MledbFinalizationService,
@@ -73,10 +66,12 @@ export class ScrimService {
         return "scrims.lfs";
     }
 
-    async getAllScrims(filters: MatchmakingInput<MatchmakingEndpoint.GetAllScrims> = {}): Promise<IScrim[]> {
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, filters);
+    async getAllScrims(skillGroupId?: number): Promise<IScrim[]> {
+        const result = await this.matchmakingService.send(MatchmakingEndpoint.GetAllScrims, {
+            skillGroupId,
+        });
 
-        if (result.status === ResponseStatus.SUCCESS) return this.hydrateScrimMetadata(result.data);
+        if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
 
@@ -120,33 +115,6 @@ export class ScrimService {
     async createScrim(data: CreateScrimOptions): Promise<IScrim> {
         const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateScrim, data);
 
-        if (result.status === ResponseStatus.SUCCESS) return result.data;
-        throw result.error;
-    }
-
-    async createTestScrim(
-        authorId: number,
-        organizationId: number,
-        gameModeId: number,
-        skillGroupId: number,
-    ): Promise<IScrim> {
-        const gameMode = await this.gameModeService.getGameModeById(gameModeId);
-        const result = await this.matchmakingService.send(MatchmakingEndpoint.CreateTestScrim, {
-            authorId,
-            organizationId,
-            gameModeId,
-            skillGroupId,
-            testRunId: uuid(),
-            settings: {
-                teamSize: gameMode.teamSize,
-                teamCount: gameMode.teamCount,
-                mode: ScrimMode.TEAMS,
-                competitive: false,
-                observable: false,
-                lfs: false,
-                checkinTimeout: 0,
-            },
-        });
         if (result.status === ResponseStatus.SUCCESS) return result.data;
         throw result.error;
     }
@@ -236,8 +204,9 @@ export class ScrimService {
             },
         });
 
-        // NOTE: Refactor after we move to sprocket rosters
+        // TODO: Refactor after we move to sprocket rosters
         const franchiseProfiles = await Promise.all(scrim.players.map(async p => {
+            const sprocketMember = await this.memberService.getMember({where: {userId: p.id} });
             const mleFranchise = await this.franchiseService
                 .getPlayerFranchisesByUserId(p.id)
                 .catch(() => null);
@@ -324,28 +293,5 @@ export class ScrimService {
                 }
             });
         });
-    }
-
-    private async hydrateScrimMetadata(scrims: IScrim[]): Promise<IScrim[]> {
-        const gameModeIds = Array.from(new Set(scrims.map(scrim => scrim.gameModeId)));
-        const skillGroupIds = Array.from(new Set(scrims.map(scrim => scrim.skillGroupId)));
-
-        const [gameModes, skillGroups] = await Promise.all([
-            Promise.all(gameModeIds.map(async id => this.gameModeService.getGameModeById(id, {
-                relations: ["game"],
-            }))),
-            Promise.all(skillGroupIds.map(async id => this.gameSkillGroupService.getGameSkillGroupById(id, {
-                relations: ["profile"],
-            }))),
-        ]);
-
-        const gameModesById = new Map(gameModes.map(gameMode => [gameMode.id, gameMode]));
-        const skillGroupsById = new Map(skillGroups.map(skillGroup => [skillGroup.id, skillGroup]));
-
-        return scrims.map(scrim => ({
-            ...scrim,
-            gameMode: gameModesById.get(scrim.gameModeId),
-            skillGroup: skillGroupsById.get(scrim.skillGroupId),
-        }));
     }
 }

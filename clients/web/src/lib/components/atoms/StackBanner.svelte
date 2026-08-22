@@ -35,8 +35,8 @@
             <FaExclamationTriangle />
         </span>
 
-        <button type="button" class="absolute right-8 h-8 hover:cursor-pointer" on:click={close} aria-label="Dismiss stack banner">
+        <span class="absolute right-8 h-8 hover:cursor-pointer" on:click={close}>
             <MdClose />
-        </button>
+        </span>
     </div>
 {/if}

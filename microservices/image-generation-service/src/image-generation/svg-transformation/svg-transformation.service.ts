@@ -1,7 +1,7 @@
 import {Injectable, Logger} from "@nestjs/common";
 import type {DataLeaf, TemplateStructure} from "@sprocketbot/common";
 import axios from "axios";
-import sharp from "sharp";
+import * as sharp from "sharp";
 
 import type {
     Dimension,
@@ -90,7 +90,7 @@ export class SvgTransformationService {
         }
 
         /*
-         * NOTE: Ensure that string generic typing is correct here
+         * TODO: Ensure that string generic typing is correct here
          */
         let image = this.imageLookup.get(value);
         if (!image) {
@@ -103,8 +103,8 @@ export class SvgTransformationService {
                 return;
             }
             /*
-             * NOTE: Transform image to retain centering and height
-             * NOTE: Maintain Height or Maintain Width as an option
+             * TODO: Transform image to retain centering and height
+             * TODO: Maintain Height or Maintain Width as an option
              */
             image = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
             this.imageLookup.set(value, image);
@@ -114,15 +114,15 @@ export class SvgTransformationService {
         } else if (target.nodeName === "rect") {
             // Create new image element
             const newImage = target.ownerDocument.createElement("image");
-            for (const attr of Array.from(target.attributes)) {
+            for (const attr of target.attributes) {
                 newImage.setAttribute(attr.name, attr.value);
             }
             newImage.setAttribute("xlink:href", image);
             target.parentNode?.replaceChild(newImage, target);
         }
         /*
-         * NOTE: Deal with figma output ( fill=url(#pattern) )
-         * NOTE: Image rescaling options
+         * TODO: Deal with figma output ( fill=url(#pattern) )
+         * TODO: Image rescaling options
          */
         if (options.rescaleOn === "height") return;
     }
@@ -138,7 +138,7 @@ export class SvgTransformationService {
         if (children.length && children[0].tagName === "tspan") {
             target = children[0];
         }
-        // NOTE: Account for editors that use transformations (i.e. Illustrator)
+        // TODO: Account for editors that use transformations (i.e. Illustrator)
         const originalLeft = Number(target.getAttribute("x") ?? 0);
         const originalBottom = Number(target.getAttribute("y") ?? 0);
         const {height: originalHeight, width: originalWidth} = await this.getElDimension(el);

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import type {
     CanActivate, ExecutionContext, Type,
 } from "@nestjs/common";
@@ -9,7 +7,7 @@ import {GqlExecutionContext} from "@nestjs/graphql";
 import type {MLE_OrganizationTeam} from "../../database/mledb";
 import type {UserPayload} from "../../identity/auth";
 
-// NOTE: If someone logs in with something that isn't Discord, their org teams will be undefined
+// TODO: If someone logs in with something that isn't Discord, their org teams will be undefined
 // See src/identity/auth/oauth/oauth.controller.ts - Only gets set on discord authentication
 
 export type OrganizationTeamGuardOptions =
@@ -47,13 +45,9 @@ export function MLEOrganizationTeamGuard(organizationTeams: OrganizationTeamGuar
             const ctx = GqlExecutionContext.create(context);
             const req = ctx.getContext().req;
 
-            // Allow bypassing org-team checks only in automated Jest-style test mode.
-            // IMPORTANT: This must never bypass authorization in a deployed runtime.
-            if (
-                process.env.ENABLE_TEST_MODE === "true"
-                && process.env.NODE_ENV === "test"
-                && req.headers["x-test-mode"] === "true"
-            ) {
+            // Allow bypassing org team check in test mode for local development
+            // IMPORTANT: This should ONLY be enabled in local development, never in production
+            if (process.env.ENABLE_TEST_MODE === "true" && req.headers["x-test-mode"] === "true") {
                 // Test mode user already has all org teams injected by GqlJwtGuard
                 return true;
             }

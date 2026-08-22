@@ -33,7 +33,6 @@ export enum CoreEndpoint {
     GetGameByGameMode = "GetGameByGameMode",
     GetNicknameByDiscordUser = "GetNicknameByDiscordUser",
     UpsertReportCardAsset = "UpsertReportCardAsset",
-    ProvisionTestReplayPlayers = "ProvisionTestReplayPlayers",
 }
 
 export const CoreSchemas = {
@@ -152,10 +151,6 @@ export const CoreSchemas = {
     [CoreEndpoint.UpsertReportCardAsset]: {
         input: Schemas.UpsertReportCardAsset_Request,
         output: Schemas.UpsertReportCardAsset_Response,
-    },
-    [CoreEndpoint.ProvisionTestReplayPlayers]: {
-        input: Schemas.ProvisionTestReplayPlayers_Request,
-        output: Schemas.ProvisionTestReplayPlayers_Response,
     },
 };
 

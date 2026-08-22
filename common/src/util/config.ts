@@ -1,5 +1,3 @@
-import type {LogLevel} from "@nestjs/common";
-
 import {ConfigResolver} from "./config-resolver";
 
 export const config = {
@@ -46,21 +44,16 @@ export const config = {
         get prefix(): string {
             return ConfigResolver.getConfig("BOT_PREFIX", "bot.prefix");
         },
-        get token(): string {
-            return ConfigResolver.getSecret("DISCORD_BOT_TOKEN", "./secret/bot-token.txt");
-        },
     },
     cache: {
         get port(): number {
             return (
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getNumberConfig("CACHE_PORT", "cache.port")
         || ConfigResolver.getNumberConfig("REDIS_PORT", "redis.port")
             );
         },
         get host(): string {
             return (
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getConfig("CACHE_HOST", "cache.host")
         || ConfigResolver.getConfig("REDIS_HOST", "redis.host")
             );
@@ -75,7 +68,6 @@ export const config = {
         },
         get secure(): boolean {
             return (
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 ConfigResolver.getBooleanConfig("CACHE_SECURE", "cache.secure")
         || ConfigResolver.getBooleanConfig("REDIS_SECURE", "redis.secure")
             );
@@ -114,40 +106,6 @@ export const config = {
         get enable_logs(): boolean {
             return ConfigResolver.getBooleanConfig("POSTGRES_ENABLE_LOGS", "db.enable_logs");
         },
-        get pool_size(): number {
-            return ConfigResolver.getNumberConfig("POSTGRES_POOL_SIZE", "db.pool_size", 1);
-        },
-        get pool_idle_timeout_ms(): number {
-            return ConfigResolver.getNumberConfig("POSTGRES_POOL_IDLE_TIMEOUT_MS", "db.pool_idle_timeout_ms", 10000);
-        },
-        get pool_connection_timeout_ms(): number {
-            return ConfigResolver.getNumberConfig(
-                "POSTGRES_POOL_CONNECTION_TIMEOUT_MS",
-                "db.pool_connection_timeout_ms",
-                5000,
-            );
-        },
-        get pool_max_lifetime_seconds(): number {
-            return ConfigResolver.getNumberConfig(
-                "POSTGRES_POOL_MAX_LIFETIME_SECONDS",
-                "db.pool_max_lifetime_seconds",
-                300,
-            );
-        },
-        get idle_in_transaction_timeout_ms(): number {
-            return ConfigResolver.getNumberConfig(
-                "POSTGRES_IDLE_IN_TRANSACTION_TIMEOUT_MS",
-                "db.idle_in_transaction_timeout_ms",
-                60000,
-            );
-        },
-        get application_name(): string {
-            return ConfigResolver.getConfig(
-                "POSTGRES_APPLICATION_NAME",
-                "db.application_name",
-                process.env.SPROCKET_SERVICE_NAME ?? process.env.SERVICE_NAME ?? "",
-            );
-        },
     },
     gql: {
         get url(): string {
@@ -157,28 +115,14 @@ export const config = {
             return ConfigResolver.getBooleanConfig("GQL_PLAYGROUND", "gql.playground");
         },
     },
-    influx: {
-        get address(): string {
-            return ConfigResolver.getConfig("INFLUX_ADDRESS", "influx.address", "");
-        },
-        get org(): string {
-            return ConfigResolver.getConfig("INFLUX_ORG", "influx.org", "sprocket");
-        },
-        get bucket(): string {
-            return ConfigResolver.getConfig("INFLUX_BUCKET", "influx.bucket", "sprocket");
-        },
-        get token(): string {
-            return ConfigResolver.getSecret("INFLUX_TOKEN", "./secret/influx-token");
-        },
-    },
     logger: {
-        get levels(): LogLevel[] {
-            const levelsStr = ConfigResolver.getConfig<string | string[]>("LOGGER_LEVELS", "logger.levels");
+        get levels() {
+            const levelsStr = ConfigResolver.getConfig("LOGGER_LEVELS", "logger.levels");
             // If it's already an array (from config file), return it
-            if (Array.isArray(levelsStr)) return levelsStr as LogLevel[];
+            if (Array.isArray(levelsStr)) return levelsStr;
             // If it's a JSON string, parse it
             if (typeof levelsStr === "string" && levelsStr.startsWith("[")) {
-                return JSON.parse(levelsStr) as LogLevel[];
+                return JSON.parse(levelsStr);
             }
             // Legacy support: if it's "debug", return full array
             return levelsStr === "debug" ? ["error", "warn", "log", "debug"] : ["error", "warn", "log"];

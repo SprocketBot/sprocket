@@ -18,8 +18,6 @@ export enum MatchmakingEndpoint {
     CancelScrim = "CancelScrim",
     SetScrimLocked = "SetScrimLocked",
     UpdateLFSScrimPlayers = "UpdateLFSScrimPlayers",
-    CreateTestScrim = "CreateTestScrim",
-    UpdateTestScrimPlayers = "UpdateTestScrimPlayers",
 }
 
 export const MatchmakingSchemas = {
@@ -78,14 +76,6 @@ export const MatchmakingSchemas = {
     [MatchmakingEndpoint.UpdateLFSScrimPlayers]: {
         input: Schemas.UpdateLFSScrimPlayers_Request,
         output: Schemas.UpdateLFSScrimPlayers_Response,
-    },
-    [MatchmakingEndpoint.CreateTestScrim]: {
-        input: Schemas.CreateTestScrim_Request,
-        output: Schemas.CreateTestScrim_Response,
-    },
-    [MatchmakingEndpoint.UpdateTestScrimPlayers]: {
-        input: Schemas.UpdateTestScrimPlayers_Request,
-        output: Schemas.UpdateTestScrimPlayers_Response,
     },
 };
 

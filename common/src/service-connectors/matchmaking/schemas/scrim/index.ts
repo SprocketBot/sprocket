@@ -12,5 +12,3 @@ export * from "./JoinScrim.schema";
 export * from "./LeaveScrim.schema";
 export * from "./SetScrimLocked.schema";
 export * from "./UpdateLFSScrimPlayers.schema";
-export * from "./CreateTestScrim.schema";
-export * from "./UpdateTestScrimPlayers.schema";

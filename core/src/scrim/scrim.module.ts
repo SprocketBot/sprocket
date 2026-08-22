@@ -1,3 +1,4 @@
+import {BullModule} from "@nestjs/bull";
 import {Module} from "@nestjs/common";
 import {
     EventsModule, MatchmakingModule, RedisModule,
@@ -10,14 +11,15 @@ import {SchedulingModule} from "../database/scheduling/scheduling.module";
 import {EloConnectorModule} from "../elo/elo-connector";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
-import {IdentityModule} from "../identity";
 import {AuthModule} from "../identity/auth/";
+import {IdentityModule} from "../identity";
 import {MledbInterfaceModule} from "../mledb";
 import {OrganizationModule} from "../organization";
 import {MatchService, RoundService} from "../scheduling";
 import {UtilModule} from "../util/util.module";
 import {ScrimPubSub} from "./constants";
 import {ScrimMetricsResolver} from "./metrics";
+import {ScrimConsumer} from "./scrim.consumer";
 import {ScrimController} from "./scrim.controller";
 import {ScrimManagementResolver} from "./scrim.management/scrim.management.resolver";
 import {ScrimModuleResolver, ScrimModuleResolverPublic} from "./scrim.mod.resolver";
@@ -43,6 +45,7 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         FranchiseModule,
         MledbInterfaceModule,
         EloConnectorModule,
+        BullModule.registerQueue({name: "scrim"}),
     ],
     providers: [
         ScrimModuleResolver,
@@ -51,6 +54,7 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
             provide: ScrimPubSub,
             useValue: new PubSub(),
         },
+        ScrimConsumer,
         ScrimService,
         ScrimResolver,
         MatchService,

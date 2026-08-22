@@ -1,7 +1,8 @@
 import type {WriteApi} from "@influxdata/influxdb-client";
 import {InfluxDB, Point} from "@influxdata/influxdb-client";
 import {Injectable, Logger} from "@nestjs/common";
-import {config} from "@sprocketbot/common";
+import * as config from "config";
+import * as fs from "fs";
 import type {DebouncedFunc} from "lodash";
 import {throttle} from "lodash";
 
@@ -18,13 +19,13 @@ export class AnalyticsService {
     private readonly flush: DebouncedFunc<() => void>;
 
     constructor() {
-        const influxUrl = config.influx.address;
-        const influxOrg = config.influx.org;
-        const influxBucket = config.influx.bucket;
+        const influxUrl = config.get<string>("influx.address");
+        const influxOrg = config.get<string>("influx.org");
+        const influxBucket = config.get<string>("influx.bucket");
 
         this.influx = new InfluxDB({
             url: influxUrl,
-            token: config.influx.token,
+            token: fs.readFileSync("secret/influx-token").toString(),
         });
         this.writeApi = this.influx.getWriteApi(influxOrg, influxBucket, "ms");
         this.logger.log(`Connected to InfluxDB, url='${influxUrl}', org='${influxOrg}', bucket='${influxBucket}'`);

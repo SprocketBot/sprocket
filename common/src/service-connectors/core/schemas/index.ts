@@ -27,4 +27,3 @@ export * from "./GetUserByAuthAccount.schema";
 export * from "./GetUsersLastScrim.schema";
 export * from "./MemberRestriction.schema";
 export * from "./UpsertReportCardAsset.schema";
-export * from "./ProvisionTestReplayPlayers.schema";

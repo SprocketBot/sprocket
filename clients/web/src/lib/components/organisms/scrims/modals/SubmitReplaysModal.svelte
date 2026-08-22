@@ -51,7 +51,7 @@
     };
 
     const handleUpload = async (f: FileList) => {
-        if (!f?.length) return;
+        if (!f || !f.length) return;
 
         const _replays = Array.from(f).map(file => ({
             id: shortid.generate(),

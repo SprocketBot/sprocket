@@ -1,30 +1,40 @@
-import type {OnApplicationBootstrap, OnModuleDestroy} from "@nestjs/common";
-import {Injectable, Logger} from "@nestjs/common";
+import {
+    InjectQueue, OnQueueFailed, Process, Processor,
+} from "@nestjs/bull";
+import {Logger} from "@nestjs/common";
 import {ScrimStatus} from "@sprocketbot/common";
+import {Job, Queue} from "bull";
 import {compareAsc} from "date-fns";
+import {now} from "lodash";
 
 import {ScrimService} from "./scrim.service";
 import {ScrimCrudService} from "./scrim-crud/scrim-crud.service";
 
-// Configurable via SCRIM_CLOCK_INTERVAL_MS env var (default: 2 minutes)
-// eslint-disable-next-line no-undef
-const SCRIM_CLOCK_INTERVAL_MS = Number(process.env.SCRIM_CLOCK_INTERVAL_MS ?? "120000");
+export const MATCHMAKING_QUEUE = "matchmaking";
+const SCRIM_CLOCK_JOB = "scrimClockJob";
 
-@Injectable()
-export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
+@Processor(MATCHMAKING_QUEUE)
+export class ScrimConsumer {
     private readonly logger = new Logger(ScrimConsumer.name);
 
-    private interval?: ReturnType<typeof setInterval>;
+    constructor(
+        @InjectQueue(MATCHMAKING_QUEUE) private matchmakingQueue: Queue,
+        private readonly scrimService: ScrimService,
+        private readonly scrimCrudService: ScrimCrudService,
+    ) {}
 
-    constructor(private readonly scrimService: ScrimService, private readonly scrimCrudService: ScrimCrudService) {}
+    @OnQueueFailed()
+    async onFailure(_: Job, error: Error): Promise<void> {
+        this.logger.error(error);
+    }
 
+    @Process({name: SCRIM_CLOCK_JOB})
     async scrimClock(): Promise<void> {
-        // Use efficient query that only loads pending/popped scrims instead of all scrims
-        const scrims = await this.scrimCrudService.getScrimsForClockCheck();
+        const scrims = await this.scrimCrudService.getAllScrims();
 
         for (const scrim of scrims.filter(s => s.status === ScrimStatus.PENDING)) {
             for (const player of scrim.players) {
-                if (compareAsc(new Date(), player.leaveAt) > 0) {
+                if (compareAsc(now(), player.leaveAt) > 0) {
                     if (scrim.players.length === 1) {
                         await this.scrimService.cancelScrim(scrim.id);
                     } else {
@@ -33,23 +43,22 @@ export class ScrimConsumer implements OnApplicationBootstrap, OnModuleDestroy {
                 }
             }
         }
+    }
 
-        for (const scrim of scrims.filter(s => s.status === ScrimStatus.POPPED)) {
-            const poppedAt = scrim.poppedAt ?? scrim.updatedAt;
-            const timeoutAt = new Date(poppedAt.getTime() + scrim.settings.checkinTimeout);
-            if (compareAsc(new Date(), timeoutAt) <= 0) continue;
-            await this.scrimService.cancelScrim(scrim.id);
+    async onApplicationBootstrap(): Promise<void> {
+        const repeatableJobs = await this.matchmakingQueue.getRepeatableJobs();
+
+        if (!repeatableJobs.some(job => job.name === SCRIM_CLOCK_JOB)) {
+            this.logger.debug("Found no job for scrim clock, creating");
+
+            await this.matchmakingQueue.add(SCRIM_CLOCK_JOB, null, {
+                repeat: {
+                    cron: "*/2 * * * *",
+                },
+                removeOnComplete: true,
+            });
+        } else {
+            this.logger.debug("Job for scrim clock already exists");
         }
-    }
-
-    onApplicationBootstrap(): void {
-        this.interval = setInterval(() => {
-            this.scrimClock().catch(error => { this.logger.error(error) });
-        }, SCRIM_CLOCK_INTERVAL_MS);
-        this.interval.unref();
-    }
-
-    onModuleDestroy(): void {
-        if (this.interval) clearInterval(this.interval);
     }
 }

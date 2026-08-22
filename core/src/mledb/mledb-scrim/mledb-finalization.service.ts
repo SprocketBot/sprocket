@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
@@ -48,7 +46,6 @@ import type {
     MatchReplaySubmission,
     ScrimReplaySubmission,
 } from "../../replay-parse";
-import {TestScrimIdentityService} from "../../replay-parse/test-scrim-identity.service";
 import {SprocketRatingService} from "../../sprocket-rating/sprocket-rating.service";
 import {MledbMatchService} from "../mledb-match/mledb-match.service";
 import {assignPlayerStats} from "./assign-player-stats";
@@ -57,7 +54,6 @@ import {ballchasingMapLookup} from "./ballchasing-maps";
 @Injectable()
 export class MledbFinalizationService {
     private readonly logger = new Logger(MledbFinalizationService.name);
-
     private readonly carballConverter = new CarballConverterService();
 
     constructor(
@@ -72,7 +68,6 @@ export class MledbFinalizationService {
     private readonly userService: UserService,
     private readonly sprocketRatingService: SprocketRatingService,
     private readonly mleMatchService: MledbMatchService,
-    private readonly testScrimIdentityService: TestScrimIdentityService,
     ) {}
 
     async getLeagueAndMode(scrim: Scrim): Promise<{mode: GameMode; group: GameSkillGroup;}> {
@@ -169,7 +164,7 @@ export class MledbFinalizationService {
         await em.insert(MLE_Scrim, scrim);
         await em.insert(MLE_Series, series);
 
-        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series, scrimObject.testRunId);
+        await this.saveSeries(submission as ReplaySubmission, submissionId, em, series);
 
         if (scrimObject.settings.competitive) {
             const playerEligibilities = await Promise.all(scrimObject.players.map(async p => {
@@ -199,7 +194,6 @@ export class MledbFinalizationService {
         submissionId: string,
         em: EntityManager,
         series: MLE_Series,
-        testRunId?: string,
     ): Promise<number> {
     // First; initialize all the arrays to save at the end.
         const coreStats: MLE_PlayerStatsCore[] = [];
@@ -241,9 +235,7 @@ export class MledbFinalizationService {
 
                 const playerAccount = await this.mlePlayerAccountRepository.findOneOrFail({
                     where: {
-                        platformId: testRunId
-                            ? await this.testScrimIdentityService.mapPlatformAccount(testRunId, p.id.platform, p.id.id) ?? p.id.id
-                            : p.id.id,
+                        platformId: p.id.id,
                         platform: p.id.platform.toUpperCase() as MLE_Platform,
                     },
                     relations: {
@@ -270,9 +262,9 @@ export class MledbFinalizationService {
                 // eslint-disable-next-line @typescript-eslint/no-extra-parens
                 core.mvpr
             = safeNum(core.goals)
-            + (safeNum(core.assists) * 0.75)
-            + (safeNum(core.saves) * 0.6)
-            + (safeNum(core.shots) / 3);
+            + safeNum(core.assists) * 0.75
+            + safeNum(core.saves) * 0.6
+            + safeNum(core.shots) / 3;
 
                 // Calculate sprocket rating with NaN protection
                 const {
@@ -392,19 +384,21 @@ export class MledbFinalizationService {
         if (parserType === Parser.CARBALL) {
             const parseResult = CarballResponseSchema.safeParse(item.progress?.result?.data);
 
-            if (!parseResult.success) {
+            if (parseResult.success === false) {
                 const {error: parseError} = parseResult;
 
-                this.logger.warn(`Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
-                    submissionId,
-                    originalFilename: item.originalFilename,
-                    outputPath: item.outputPath,
-                    replayIndex,
-                    issues: parseError.issues.map(issue => ({
-                        path: issue.path.join("."),
-                        message: issue.message,
-                    })),
-                })}`);
+                this.logger.warn(
+                    `Degrading malformed carball payload for legacy finalization | ${JSON.stringify({
+                        submissionId,
+                        originalFilename: item.originalFilename,
+                        outputPath: item.outputPath,
+                        replayIndex,
+                        issues: parseError.issues.map(issue => ({
+                            path: issue.path.join("."),
+                            message: issue.message,
+                        })),
+                    })}`,
+                );
 
                 const converted = this.carballConverter.convertToBallchasingFormat(
                     this.coerceMalformedCarballPayload(item.progress?.result?.data),
@@ -490,13 +484,15 @@ export class MledbFinalizationService {
             .join(":")
             .slice(0, 255);
 
-        this.logger.warn(`Using fallback legacy replay match guid | ${JSON.stringify({
-            submissionId,
-            originalFilename: item.originalFilename,
-            outputPath: item.outputPath,
-            replayIndex,
-            fallbackGuid,
-        })}`);
+        this.logger.warn(
+            `Using fallback legacy replay match guid | ${JSON.stringify({
+                submissionId,
+                originalFilename: item.originalFilename,
+                outputPath: item.outputPath,
+                replayIndex,
+                fallbackGuid,
+            })}`,
+        );
 
         return fallbackGuid;
     }
@@ -526,4 +522,3 @@ export class MledbFinalizationService {
         return playerAccount.player;
     }
 }
-/* eslint-disable @typescript-eslint/member-ordering */

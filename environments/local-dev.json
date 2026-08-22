@@ -26,6 +26,7 @@
     "notification-service",
     "server-analytics-service",
     "replay-parse-service",
+    "rabbitmq",
     "redis",
     "postgres",
     "minio"

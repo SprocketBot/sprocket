@@ -35,7 +35,6 @@
                     <th>Scrim/Match ID</th>
                     <th>Creator</th>
                     <th>Status</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>

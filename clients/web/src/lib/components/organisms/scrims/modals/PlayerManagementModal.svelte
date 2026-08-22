@@ -16,7 +16,7 @@
         // toast
         // remove ban
         try {
-            // NOTE: ensure we are getting the correct orgId
+            // TODO: ensure we are getting the correct orgId
             const memberRequest = await getMemberByUserIdQuery({id: player.id, orgId: player.orgId});
             const memberId = memberRequest.id ?? 0;
             const duration = expirationDuration * 1000 * 60 * 60; // n hours in ms
@@ -39,10 +39,10 @@
         <h4 class='text-lg font-bold'>Selected Player: {player.name}</h4>
 
         <div class="form-control">
-            <label class="label" for="ban-duration">
+            <label class="label">
                 <span class="label-text">Ban Duration</span>
             </label>
-            <select id="ban-duration" bind:value={expirationDuration} class='select select-bordered'>
+            <select bind:value={expirationDuration} class='select select-bordered'>
                 <option disabled selected> Make a Selection</option>
                 <option value={12}> 12 Hours</option>
                 <option value={24}> 24 Hours</option>
@@ -51,13 +51,13 @@
         </div>
 
         <div class="form-control">
-            <label class="label" for="ban-reason">
+            <label class="label">
                 <span class="label-text">Reason:</span>
             </label>
-            <input id="ban-reason" bind:value={reason} class="input input-bordered w-full input-sm" required placeholder="Provide Ban Reason:"/>
+            <input bind:value={reason} class="input input-bordered w-full input-sm" required placeholder="Provide Ban Reason:"/>
         </div>
 
-        <button class="btn btn-error btn-outline btn-wide flex mx-auto mb-4" disabled={!buttonEnabled} aria-label="Ban player">
+        <button class="btn btn-error btn-outline btn-wide flex mx-auto mb-4" disabled={!buttonEnabled}>
             <span class="h-6"><FaHammer/></span>
         </button>
     </form>

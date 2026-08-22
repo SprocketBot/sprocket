@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/member-ordering, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {Inject, Logger} from "@nestjs/common";
 import {ClientProxy} from "@nestjs/microservices";
 import {InjectConnection} from "@nestjs/typeorm";
@@ -64,4 +64,3 @@ export class GlobalEntitySubscriberService implements EntitySubscriberInterface<
         this.clientProxy.emit(`db.removed.${event.metadata.name}`, this.sanitize(event.entity));
     }
 }
-/* eslint-disable @typescript-eslint/member-ordering */

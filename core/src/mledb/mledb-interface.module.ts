@@ -8,14 +8,10 @@ import {RosterRole} from "../database/franchise/roster_role/roster_role.model";
 import {RosterRoleUsage} from "../database/franchise/roster_role_usages/roster_role_usages.model";
 import {RosterSlot} from "../database/franchise/roster_slot/roster_slot.model";
 import {Team} from "../database/franchise/team/team.model";
-import {
-    MLE_Player, MLE_Team, MLE_TeamToCaptain,
-} from "../database/mledb";
 import {MLE_Series} from "../database/mledb/Series.model";
 import {MLE_TeamRoleUsage} from "../database/mledb/TeamRoleUsage.model";
 import {SeriesToMatchParent} from "../database/mledb-bridge/series_to_match_parent.model";
 import {Match} from "../database/scheduling/match/match.model";
-import {TestReplayIdentity} from "../database/scheduling/test_replay_identity/test_replay_identity.model";
 import {FranchiseModule} from "../franchise";
 import {GameModule} from "../game";
 import {IdentityModule} from "../identity";
@@ -23,29 +19,19 @@ import {OrganizationModule} from "../organization/organization.module";
 import {SchedulingModule} from "../scheduling/scheduling.module";
 import {SprocketRatingModule} from "../sprocket-rating";
 import {UtilModule} from "../util/util.module";
-import {MledbFaPresentationResolver, MledbFaPresentationService} from "./mledb-fa";
-import {
-    MledbFranchisePresentationResolver,
-    MledbFranchisePresentationService,
-} from "./mledb-franchise";
 import {MledbMatchController} from "./mledb-match/mledb-match.controller";
 import {MledbMatchService} from "./mledb-match/mledb-match.service";
+import {FormerPlayerScrimGuard} from "./mledb-player/mledb-player.guard";
 import {MledbPlayerService} from "./mledb-player";
 import {MledbPlayerController} from "./mledb-player/mledb-player.controller";
-import {FormerPlayerScrimGuard} from "./mledb-player/mledb-player.guard";
-import {MledbPlayerPresentationResolver} from "./mledb-player/mledb-player.presentation.resolver";
 import {MledbPlayerAccountService} from "./mledb-player-account";
 import {MledbFinalizationService} from "./mledb-scrim";
 import {MledbNcpTeamRoleUsageResolver, MledbNcpTeamRoleUsageService} from "./mledb-team-role-usage";
-import {TestScrimIdentityService} from "../replay-parse/test-scrim-identity.service";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([
             MLE_TeamRoleUsage,
-            MLE_Team,
-            MLE_TeamToCaptain,
-            MLE_Player,
             MLE_Series,
             SeriesToMatchParent,
             Match,
@@ -54,7 +40,6 @@ import {TestScrimIdentityService} from "../replay-parse/test-scrim-identity.serv
             RosterRole,
             RosterSlot,
             RosterRoleUsage,
-            TestReplayIdentity,
         ]),
         DatabaseModule,
         GameModule,
@@ -68,18 +53,12 @@ import {TestScrimIdentityService} from "../replay-parse/test-scrim-identity.serv
     ],
     providers: [
         MledbPlayerService,
-        MledbPlayerPresentationResolver,
         MledbPlayerAccountService,
-        MledbFranchisePresentationService,
-        MledbFranchisePresentationResolver,
-        MledbFaPresentationService,
-        MledbFaPresentationResolver,
         MledbFinalizationService,
         MledbMatchService,
         MledbNcpTeamRoleUsageService,
         MledbNcpTeamRoleUsageResolver,
         FormerPlayerScrimGuard,
-        TestScrimIdentityService,
     ],
     exports: [
         MledbMatchService,
@@ -87,7 +66,6 @@ import {TestScrimIdentityService} from "../replay-parse/test-scrim-identity.serv
         MledbPlayerAccountService,
         MledbFinalizationService,
         FormerPlayerScrimGuard,
-        TestScrimIdentityService,
     ],
     controllers: [MledbMatchController, MledbPlayerController],
 })

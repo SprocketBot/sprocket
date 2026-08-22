@@ -40,7 +40,6 @@ describe("GameOrderService", () => {
                     mode: ScrimMode.ROUND_ROBIN,
                     competitive: true,
                     observable: false,
-                    lfs: false,
                     checkinTimeout: 2000,
                 },
                 players: [

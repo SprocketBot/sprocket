@@ -536,9 +536,10 @@ module.exports = {
     'no-useless-rename':
       'error' /* ( f) disallow renaming import, export, and destructured assignments to the same name */,
     'no-var': 'error' /* ( f) require `let` or `const` instead of `var` */,
-    // Legacy core code intentionally mixes shorthand and explicit keys in
-    // DTOs; this style rule produces churn without changing behavior.
-    'object-shorthand': 'off',
+    'object-shorthand': [
+      'error',
+      'consistent',
+    ] /* ( f) require or disallow method and property shorthand syntax for object literals */,
     'prefer-arrow-callback': 'error' /* ( f) require using arrow functions for callbacks */,
     'prefer-const':
       'error' /* ( f) require `const` declarations for variables that are never reassigned after declared */,
@@ -736,10 +737,8 @@ module.exports = {
       'error' /* (   ) Require that all enum members be literal values to prevent unintended enum member name shadow issues */,
     '@typescript-eslint/prefer-namespace-keyword':
       'error' /* (rf ) Require the use of the namespace keyword instead of the module keyword to declare custom TypeScript modules */,
-    // This project intentionally disables strictNullChecks; the rule emits a
-    // file-level error without that compiler option and cannot provide useful
-    // diagnostics in this workspace.
-    '@typescript-eslint/prefer-nullish-coalescing': 'off',
+    '@typescript-eslint/prefer-nullish-coalescing':
+      'error' /* (  t) Enforce the usage of the nullish coalescing operator instead of logical chaining */,
     '@typescript-eslint/prefer-optional-chain':
       'error' /* (   ) Prefer using concise optional chain expressions instead of chained logical ands */,
     '@typescript-eslint/prefer-readonly':
@@ -927,22 +926,4 @@ module.exports = {
     '@typescript-eslint/space-infix-ops':
       'error' /* ( f ) This rule is aimed at ensuring there are spaces around infix operators. */,
   },
-  overrides: [
-    {
-      files: ['**/*.spec.ts'],
-      rules: {
-        // Test doubles intentionally use broad shapes and direct mock-method
-        // references; production type-safety rules do not improve these fixtures.
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'off',
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-return': 'off',
-        '@typescript-eslint/no-unused-vars': 'off',
-        '@typescript-eslint/unbound-method': 'off',
-        'no-console': 'off',
-        'object-shorthand': 'off',
-      },
-    },
-  ],
 };

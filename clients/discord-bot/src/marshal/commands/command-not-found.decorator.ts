@@ -7,14 +7,14 @@ export const CommandNotFound
       descriptor: TypedPropertyDescriptor<T>,
   ): TypedPropertyDescriptor<T> => {
       if (!descriptor.value) throw new Error("Descriptor is undefined??");
-      const originalMethod = descriptor.value as unknown as (...args: unknown[]) => Promise<unknown>;
+      const originalMethod = descriptor.value as unknown as (...args: any[]) => Promise<unknown>;
 
       descriptor.value = (async function(
           this: Object,
-          ...params: unknown[]
+          ...params: any[]
       ): Promise<unknown> {
           /*
-         * NOTE: Will nest guards work, or do we need our own system?
+         * TODO: Will nest guards work, or do we need our own system?
          * If we need our own system, it should go here.
          */
 

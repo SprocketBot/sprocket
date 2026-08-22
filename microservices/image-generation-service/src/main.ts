@@ -1,5 +1,6 @@
 import {NestFactory} from "@nestjs/core";
-import {config, PostgresServer} from "@sprocketbot/common";
+import {Transport} from "@nestjs/microservices";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
@@ -7,10 +8,13 @@ const HEALTH_PORT = 3014;
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
-    app.enableShutdownHooks();
 
     app.connectMicroservice({
-        strategy: new PostgresServer({queue: config.transport.image_generation_queue}),
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url],
+            queue: config.transport.image_generation_queue,
+        },
     });
 
     await app.startAllMicroservices();

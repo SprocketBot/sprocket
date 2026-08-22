@@ -3,6 +3,7 @@ import {
     Args, Mutation, Query, Resolver, Subscription,
 } from "@nestjs/graphql";
 import {
+    RedisService,
     ResponseStatus,
     SubmissionEndpoint,
     SubmissionService,
@@ -32,6 +33,7 @@ export class ReplayParseModResolver {
         private readonly rpService: ReplayParseService,
         private readonly submissionService: SubmissionService,
         private readonly finalizationSub: FinalizationSubscriber,
+        private readonly redisService: RedisService,
         private readonly scrimService: ScrimService,
     @Inject(ReplayParsePubSub) private readonly pubsub: PubSub,
     ) { }
@@ -81,7 +83,12 @@ export class ReplayParseModResolver {
     @Mutation(() => Boolean)
     @UseGuards(MLEOrganizationTeamGuard(MLE_OrganizationTeam.MLEDB_ADMIN))
     async forceSubmissionSave(@Args("submissionId") submissionId: string): Promise<boolean> {
-        const submission: ReplaySubmission = await this.rpService.getSubmission(submissionId);
+        const redisKey = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {
+            submissionId,
+        });
+        if (redisKey.status === ResponseStatus.ERROR) throw redisKey.error;
+
+        const submission: ReplaySubmission = await this.redisService.getJson(redisKey.data.redisKey);
 
         if (submission.type === ReplaySubmissionType.MATCH) {
             await this.finalizationSub.onMatchSubmissionComplete(submission, submissionId);

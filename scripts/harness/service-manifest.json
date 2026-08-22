@@ -22,38 +22,6 @@
   },
   "services": [
     {
-      "name": "monolith",
-      "kind": "application",
-      "workspace_path": "apps/monolith",
-      "local_runtime": {
-        "compose_service": "monolith",
-        "start_hint": "docker compose -f docker-compose.monolith.yml up --build monolith",
-        "health_endpoint": "http://localhost:3001/healthz",
-        "ports": [3001]
-      },
-      "replaces": [
-        "core",
-        "discord-bot",
-        "matchmaking-service",
-        "notification-service",
-        "submission-service",
-        "image-generation-service",
-        "server-analytics-service"
-      ],
-      "keeps_separate": ["replay-parse-service", "web", "image-generation-frontend"],
-      "depends_on": ["minio", "redis", "postgres"],
-      "proof_commands": [
-        "npm run build --workspace=apps/monolith",
-        "curl http://localhost:3001/healthz",
-        "curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{__typename}\"}'"
-      ],
-      "risk_class": "high",
-      "agent_notes": [
-        "Uses the current Postgres RPC transport; do not wire RabbitMQ consumers unless the transport changes.",
-        "Runs the seven backend Node/Nest workloads in one process while keeping replay parsing and Svelte frontends separate."
-      ]
-    },
-    {
       "name": "core",
       "kind": "application",
       "workspace_path": "core",
@@ -63,7 +31,7 @@
         "health_endpoint": "http://localhost:3001/graphql",
         "ports": [3001]
       },
-      "depends_on": ["minio", "redis", "postgres"],
+      "depends_on": ["rabbitmq", "minio", "redis", "postgres"],
       "proof_commands": [
         "curl http://localhost:3001/graphql -H 'Content-Type: application/json' -d '{\"query\":\"{__typename}\"}'"
       ],
@@ -94,7 +62,7 @@
         "compose_service": null,
         "start_hint": "not currently defined in docker-compose.yml"
       },
-      "depends_on": ["minio", "redis", "postgres", "core"],
+      "depends_on": ["rabbitmq", "minio", "redis", "postgres", "core"],
       "proof_commands": [
         "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
       ],
@@ -151,7 +119,7 @@
         "compose_service": "image-generation-service",
         "start_hint": "docker-compose up -d image-generation-service"
       },
-      "depends_on": ["minio", "postgres"],
+      "depends_on": ["rabbitmq", "minio"],
       "proof_commands": [],
       "risk_class": "medium"
     },
@@ -163,7 +131,7 @@
         "compose_service": "notification-service",
         "start_hint": "docker-compose up -d notification-service"
       },
-      "depends_on": ["redis", "minio", "postgres"],
+      "depends_on": ["rabbitmq", "redis", "minio"],
       "proof_commands": [],
       "risk_class": "high"
     },
@@ -175,7 +143,7 @@
         "compose_service": "server-analytics-service",
         "start_hint": "docker-compose up -d server-analytics-service"
       },
-      "depends_on": ["postgres"],
+      "depends_on": ["rabbitmq"],
       "proof_commands": [],
       "risk_class": "medium"
     },
@@ -187,7 +155,7 @@
         "compose_service": "replay-parse-service",
         "start_hint": "docker-compose up -d replay-parse-service"
       },
-      "depends_on": ["minio", "redis", "postgres"],
+      "depends_on": ["rabbitmq", "minio", "redis"],
       "proof_commands": [
         "npm run verify:tier1 -- main-prod /absolute/path/to/profile.env submission"
       ],
@@ -220,6 +188,21 @@
       "depends_on": [],
       "proof_commands": [
         "docker-compose ps redis"
+      ],
+      "risk_class": "low"
+    },
+    {
+      "name": "rabbitmq",
+      "kind": "infrastructure",
+      "workspace_path": null,
+      "local_runtime": {
+        "compose_service": "rabbitmq",
+        "health_endpoint": "rabbitmq-diagnostics ping",
+        "ports": [5672, 15672]
+      },
+      "depends_on": [],
+      "proof_commands": [
+        "docker-compose ps rabbitmq"
       ],
       "risk_class": "low"
     },

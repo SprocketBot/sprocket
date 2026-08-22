@@ -1,17 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call */
-
 import {Injectable, Logger} from "@nestjs/common";
 import {InjectDataSource} from "@nestjs/typeorm";
 import type {
     BallchasingPlayer,
     BallchasingResponse,
     BallchasingTeam,
+    CarballResponse,
     Scrim,
 } from "@sprocketbot/common";
 import {
-    BallchasingResponseSchema,     CarballConverterService,
-    CarballResponseSchema, Parser, ProgressStatus,
+    BallchasingResponseSchema, CarballResponseSchema, Parser, ProgressStatus,
 } from "@sprocketbot/common";
+import {CarballConverterService} from "@sprocketbot/common";
 import type {EntityManager} from "typeorm";
 import {DataSource} from "typeorm";
 import type {QueryDeepPartialEntity} from "typeorm/query-builder/QueryPartialEntity";
@@ -38,7 +37,6 @@ import type {
     SprocketRating,
     SprocketRatingInput,
 } from "../../../sprocket-rating/sprocket-rating.types";
-import {TestScrimIdentityService} from "../../test-scrim-identity.service";
 import type {
     LFSReplaySubmission,
     MatchReplaySubmission,
@@ -68,7 +66,6 @@ export class RocketLeagueFinalizationService {
         private readonly eligibilityService: EligibilityService,
         private readonly gameSkillGroupService: GameSkillGroupService,
     @InjectDataSource() private readonly dataSource: DataSource,
-        private readonly testScrimIdentityService: TestScrimIdentityService,
     ) {}
 
     async finalizeLFS(
@@ -76,10 +73,11 @@ export class RocketLeagueFinalizationService {
         scrim: Scrim,
     ): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
+
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
         try {
-            await qr.connect();
-            await qr.startTransaction();
-            const em = qr.manager;
             const gameMode = await em.findOneByOrFail(GameMode, {id: scrim.gameModeId});
 
             const scrimMeta = em.create(ScrimMeta);
@@ -146,10 +144,10 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save LFS scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            if (qr.isTransactionActive) await qr.rollbackTransaction();
+            await qr.rollbackTransaction();
             throw e;
         } finally {
-            if (!qr.isReleased) await qr.release();
+            await qr.release();
         }
     }
 
@@ -158,10 +156,11 @@ export class RocketLeagueFinalizationService {
         scrim: Scrim,
     ): Promise<SaveScrimFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
+
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
         try {
-            await qr.connect();
-            await qr.startTransaction();
-            const em = qr.manager;
             // Before saving, check if scrim is competitive or not
             const isCompetitive = scrim.settings.competitive;
 
@@ -182,7 +181,7 @@ export class RocketLeagueFinalizationService {
 
             // If it's competitive, calculate and save eligibility. Otherwise, don't.
             await em.insert(Match, match as QueryDeepPartialEntity<Match>);
-            await this.saveMatchDependents(submission, match, isCompetitive, em, scrim.testRunId);
+            await this.saveMatchDependents(submission, match, isCompetitive, em);
 
             const mledbScrim = await this.mledbFinalizationService.saveScrim(
                 submission,
@@ -204,23 +203,26 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save scrim! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            if (qr.isTransactionActive) await qr.rollbackTransaction();
+            await qr.rollbackTransaction();
             throw e;
         } finally {
-            if (!qr.isReleased) await qr.release();
+            await qr.release();
         }
     }
 
     async finalizeMatch(submission: MatchReplaySubmission): Promise<SaveMatchFinalizationReturn> {
         const qr = this.dataSource.createQueryRunner();
+
+        await qr.connect();
+        await qr.startTransaction();
+        const em = qr.manager;
         try {
-            await qr.connect();
-            await qr.startTransaction();
-            const em = qr.manager;
             const match = await this.matchService.getMatchById(submission.matchId, {
-                matchParent: {fixture: {homeFranchise: true} },
+                matchParent: {fixture: {homeFranchise: {organization: true} } },
                 gameMode: true,
             });
+            const organization = match.matchParent.fixture.homeFranchise.organization;
+
             await this.saveMatchDependents(submission, match, false, em);
 
             const mleMatch = await this.mledbFinalizationService.saveMatch(submission, submission.id, em);
@@ -233,10 +235,10 @@ export class RocketLeagueFinalizationService {
             };
 
             this.logger.error(`Failed to save match! ${(e as Error).message} | ${JSON.stringify(errorPayload)}`);
-            if (qr.isTransactionActive) await qr.rollbackTransaction();
+            await qr.rollbackTransaction();
             throw e;
         } finally {
-            if (!qr.isReleased) await qr.release();
+            await qr.release();
         }
     }
 
@@ -248,7 +250,6 @@ export class RocketLeagueFinalizationService {
         match: Match,
         eligibility: boolean,
         em: EntityManager,
-        testRunId?: string,
     ): Promise<Player[]> {
         if (submission.items.some(i => i.progress?.status !== ProgressStatus.Complete)) {
             throw new Error(`Not all items have been completed. Finalization attempted too soon. ${JSON.stringify({
@@ -296,7 +297,7 @@ export class RocketLeagueFinalizationService {
                 }
                 ballchasingData = parseResult.data;
             } else {
-                throw new Error(`${i.originalFilename} has unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
+                throw new Error(`Unknown parser type: ${parserType}. Expected ${Parser.CARBALL} or ${Parser.BALLCHASING}`);
             }
 
             return {
@@ -321,12 +322,12 @@ export class RocketLeagueFinalizationService {
             : [undefined, undefined];
 
         const uniquePlayers = new Map<number, Player>();
-        // NOTE: Sprocket Team Role Usage
+        // TODO: Sprocket Team Role Usage
         const results = await Promise.all(replays.map(async ({
             replay, parser, outputPath,
         }) => {
             // Get players
-            const {blue, orange} = await this._getBallchasingPlayers(replay, testRunId);
+            const {blue, orange} = await this._getBallchasingPlayers(replay);
 
             blue.forEach(p => uniquePlayers.set(p.player.id, p.player));
             orange.forEach(p => uniquePlayers.set(p.player.id, p.player));
@@ -337,7 +338,7 @@ export class RocketLeagueFinalizationService {
        This is because the validation service has passed these over.
 
        We are using MLE Teams right now because Sprocket Roster can't be trusted.
-       NOTE: R2 Update this
+       TODO: R2 Update this
       */
 
             let awayColor: "blue" | "orange",
@@ -464,18 +465,16 @@ export class RocketLeagueFinalizationService {
    * Looks up a set of players based on their ballchasing information
    * Noteworthy; this looks up sprocket players!
    */
-    async _getBallchasingPlayers(ballchasing: BallchasingResponse, testRunId?: string): Promise<{
+    async _getBallchasingPlayers(ballchasing: BallchasingResponse): Promise<{
         blue: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
         orange: Array<{player: Player; rawPlayer: BallchasingPlayer;}>;
     }> {
-    // NOTE: This won't work when we support multiple games; in theory is an array of players for that member.
+    // TODO: This won't work when we support multiple games; in theory is an array of players for that member.
         const lookupFn = async (p: BallchasingPlayer): Promise<Player> => this.playerService.getPlayer({
             where: {
                 member: {
                     platformAccounts: {
-                        platformAccountId: testRunId
-                            ? await this.testScrimIdentityService.mapPlatformAccount(testRunId, p.id.platform, p.id.id) ?? p.id.id
-                            : p.id.id,
+                        platformAccountId: p.id.id,
                         platform: {
                             code: p.id.platform.toUpperCase(),
                         },
@@ -537,7 +536,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // NOTE: Testing
+    // TODO: Testing
     async _createPlayerStatLine(
         rawPlayer: BallchasingPlayer,
         player: Player,
@@ -563,7 +562,7 @@ export class RocketLeagueFinalizationService {
         return output;
     }
 
-    // NOTE: Testing
+    // TODO: Testing
     _getSprocketRating(
         rawPlayer: BallchasingPlayer,
         gameMode: GameMode,

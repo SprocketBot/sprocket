@@ -45,7 +45,7 @@ export class EloService {
     }
 
     skillGroupStringToInt(skillGroup: string): number {
-    // NOTE: Change strings here to match skillGroupCode in sprocket schema
+    // TODO: Change strings here to match skillGroupCode in sprocket schema
     // once MLEDB migration is complete.
         switch (skillGroup) {
             case "FOUNDATION": {

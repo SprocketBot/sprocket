@@ -14,7 +14,8 @@ export class CommandError extends Error {
     constructor(private type: CommandErrorType, private cause?: string, private resolution?: string) {
         super(cause);
 
-        const uuid = randomUUID().slice(-5);
+        let uuid = randomUUID();
+        uuid = uuid.slice(uuid.length - 5, uuid.length);
 
         let ms = new Date().getUTCMilliseconds()
             .toString();
@@ -27,7 +28,7 @@ export class CommandError extends Error {
         let response: string;
 
         if (this.type === "UnknownError") {
-            response = "An unknown error occurred, please contact a developer"; // NOTE this could direct people to #bot-support
+            response = "An unknown error occurred, please contact a developer"; // TODO this could direct people to #bot-support
         } else {
             response = `An error occurred because ${this.cause}.${
                 this.resolution ? ` Please ${this.resolution}` : ""
