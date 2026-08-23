@@ -295,7 +295,14 @@ export class Platform extends pulumi.ComponentResource {
                 }],
                 networks: [
                     args.ingressNetworkId
-                ]
+                ],
+                healthcheck: {
+                    test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3001/healthz',(r)=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""],
+                    interval: "15s",
+                    timeout: "10s",
+                    retries: 5,
+                    startPeriod: "10s"
+                }
             }, { parent: this })
         }
 

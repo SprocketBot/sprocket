@@ -106,6 +106,7 @@ export type SprocketServiceArgs = {
     labels?: LabelSpec[],
     instanceCount?: number
     commands?: string[]
+    healthcheck?: docker.types.input.ServiceTaskSpecContainerSpecHealthcheck
 }
 
 export class SprocketService extends pulumi.ComponentResource {
@@ -171,7 +172,8 @@ export class SprocketService extends pulumi.ComponentResource {
                         ...environment,
                         ...(args.env ?? {})
                     },
-                    configs
+                    configs,
+                    healthcheck: args.healthcheck
                 },
                 placement: {
                     maxReplicas: args.instanceCount ?? 2,
