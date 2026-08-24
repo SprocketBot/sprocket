@@ -1,5 +1,5 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {constants, loadConfig} from "$lib/utils";
+import {apiUrl, constants, loadConfig} from "$lib/utils";
 import {add} from "date-fns";
 
 interface refreshPayload {
@@ -126,7 +126,7 @@ export const handle: Handle = async ({event, resolve}) => {
                         // Access token exists in cookies, see if we can
                         // refresh it.
                         const result = await doAuthRefresh(
-                            `http://${config.client.gqlUrl}/refresh`,
+                            apiUrl(config.client, "/refresh"),
                             currentCookies,
                         );
                         if (result) {
@@ -141,7 +141,7 @@ export const handle: Handle = async ({event, resolve}) => {
                     // No access token exists in cookies, see if we can
                     // refresh it anyway.
                     const result = await doAuthRefresh(
-                        `http://${config.client.gqlUrl}/refresh`,
+                        apiUrl(config.client, "/refresh"),
                         currentCookies,
                     );
                     if (result) {
