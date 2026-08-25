@@ -65,15 +65,15 @@
 </script>
 
 <DashboardLayout>
-	<DashboardCard class="col-span-8 row-span-3" title="Submit Replays">
+	<DashboardCard class="col-span-1 md:col-span-2 lg:col-span-4 xl:col-span-8 row-span-1 md:row-span-3" title="Submit Replays">
 		{#if $submissionStore.fetching || $matchStore?.fetching}
 			<div class="h-full w-full flex items-center justify-center">
 				<Spinner class="h-16 w-full" />
 			</div>
 		{:else}
 			<header>
-				<h2 class="text-3xl font-bold">{match?.matchParent.fixture.scheduleGroup.description} | {match?.matchParent.fixture.homeFranchise.profile.title} vs {match?.matchParent.fixture.awayFranchise.profile.title}</h2>
-				<h3 class="text-2xl font-bold">{match?.gameMode.description} | {match?.skillGroup.profile.description}</h3>
+				<h2 class="text-xl md:text-3xl font-bold">{match?.matchParent.fixture.scheduleGroup.description} | {match?.matchParent.fixture.homeFranchise.profile.title} vs {match?.matchParent.fixture.awayFranchise.profile.title}</h2>
+				<h3 class="text-lg md:text-2xl font-bold">{match?.gameMode.description} | {match?.skillGroup.profile.description}</h3>
 			</header>
 
 

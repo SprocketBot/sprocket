@@ -26,7 +26,7 @@
 </script>
 
 <DashboardLayout>
-  <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
+  <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-5 xl:col-span-5 row-span-1 md:row-span-3">
     {#if submission}
       <SubmissionView {submission} />
     {:else}

@@ -13,11 +13,11 @@
     let mounted: boolean = false;
 
     $: sizeClass = {
-        sm: "w-[min(92vw,28rem)]",
-        md: "w-[min(94vw,42rem)]",
-        lg: "w-[min(95vw,64rem)]",
-        xl: "w-[min(96vw,84rem)]",
-        full: "w-[98vw] h-[92vh]",
+        sm: "w-[min(92vw,28rem)] sm:w-[min(94vw,28rem)]",
+        md: "w-[min(92vw,42rem)] sm:w-[min(94vw,42rem)]",
+        lg: "w-[min(92vw,64rem)] sm:w-[min(94vw,64rem)]",
+        xl: "w-[min(92vw,84rem)] sm:w-[min(94vw,84rem)]",
+        full: "w-screen h-screen max-w-none",
     }[size];
 
     const close = (): void => {
@@ -41,20 +41,20 @@
 
     <div class="modal w-screen h-screen" {id}>
         <div
-            class={`modal-box max-w-none max-h-[92vh] flex flex-col px-0 ${sizeClass}`}
+            class={`modal-box max-w-none max-h-[92vh] sm:max-h-[85vh] flex flex-col px-2 sm:px-4 ${sizeClass}`}
             use:clickOutside={{callback: handleClickOutside}}
         >
             <div class="close" on:click={close}>
                 <IoMdClose/>
             </div>
 
-            <h2 class="px-4 md:px-8">{title ?? ""}</h2>
+            <h2 class="px-8 md:px-8 text-lg sm:text-2xl">{title ?? ""}</h2>
 
-            <div class="flex-shrink min-w-0 overflow-y-auto overflow-x-hidden px-4 md:px-8">
+            <div class="flex-shrink min-w-0 overflow-y-auto overflow-x-hidden px-2 sm:px-8">
                 <slot name="body"/>
 
                 {#if $$slots.actions}
-                    <div class="modal-action">
+                    <div class="modal-action flex-col-reverse sm:flex-row">
                         <slot name="actions" {close}/>
                     </div>
                 {/if}
@@ -67,11 +67,11 @@
 
 <style lang="postcss">
     h2 {
-        @apply text-2xl text-sprocket font-bold mb-4;
+        @apply text-sprocket font-bold mb-4;
     }
 
     .close {
-        @apply absolute top-4 right-4 text-xl h-8 rounded-full bg-base-200/20 hover:bg-base-200/40 active:bg-base-200/60 p-1
-        cursor-pointer;
+        @apply absolute top-3 right-3 sm:top-4 sm:right-4 text-xl h-10 w-10 sm:h-8 sm:w-8 rounded-full bg-base-200/20 hover:bg-base-200/40 active:bg-base-200/60 p-1.5
+        cursor-pointer flex items-center justify-center;
     }
 </style>
