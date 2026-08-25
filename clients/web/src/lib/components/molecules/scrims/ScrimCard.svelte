@@ -8,64 +8,33 @@
 
 
 <div class="bg-gray-800 rounded-xl p-4">
-    <div class="flex justify-between items-center mb-2">
-        <h2 class="text-primary font-bold">Scrim</h2>
-        <button class="btn btn-outline btn-sm" on:click={() => { joinScrim(scrim) }}>Join</button>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+        <h2 class="text-primary font-bold text-lg">Scrim</h2>
+        <button class="btn btn-outline btn-sm w-full sm:w-auto" on:click={() => { joinScrim(scrim) }}>Join</button>
     </div>
     
-    <table class="table table-compact w-full">
-        <tr>
-            <th>Game</th>
-            <td>{scrim.gameMode.game.title}</td>
-        </tr>
+    <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+        <span class="text-gray-400">Game</span>
+        <span>{scrim.gameMode.game.title}</span>
     
-        <tr>
-            <th>Skill Group</th>
-            <td>{scrim.skillGroup?.profile?.description ?? ""}</td>
-        </tr>
+        <span class="text-gray-400">Skill Group</span>
+        <span>{scrim.skillGroup?.profile?.description ?? ""}</span>
 
-        <tr>
-            <th>Game Mode</th>
-            <td>{scrim.gameMode.description}</td>
-        </tr>
+        <span class="text-gray-400">Game Mode</span>
+        <span>{scrim.gameMode.description}</span>
     
-        <tr>
-            <th>Scrim Type</th>
-            <td>{screamingSnakeToHuman(scrim.settings.mode)}</td>
-        </tr>
+        <span class="text-gray-400">Scrim Type</span>
+        <span>{screamingSnakeToHuman(scrim.settings.mode)}</span>
     
-        <tr>
-            <th>Players</th>
-            <td>{scrim.playerCount} / {scrim.maxPlayers}</td>
-        </tr>
+        <span class="text-gray-400">Players</span>
+        <span>{scrim.playerCount} / {scrim.maxPlayers}</span>
     
-        <tr>
-            <th>Mode</th>
-            <td>{scrim.settings.competitive ? "Competitive" : "Casual"}</td>
-        </tr>
-    </table>
+        <span class="text-gray-400">Mode</span>
+        <span>{scrim.settings.competitive ? "Competitive" : "Casual"}</span>
+    </div>
 </div>
 
 
 <style lang="postcss">
-    table {
-        @apply select-none rounded-sm;
-
-        th {
-            @apply text-left pr-4;
-        }
-        
-        tr:not(thead tr):first-child th {
-            border-top-left-radius: 0.5rem;
-        }
-        tr:not(thead tr):last-child th {
-            border-bottom-left-radius: 0.5rem;
-        }
-        tr:not(thead tr):first-child td {
-            border-top-right-radius: 0.5rem;
-        }
-        tr:not(thead tr):last-child td {
-            border-bottom-right-radius: 0.5rem;
-        }
-    }
+    /* Styles removed - using Tailwind utility classes directly in template */
 </style>

@@ -26,7 +26,7 @@
 </script>
 
 <DashboardLayout>
-	<DashboardCard class="col-span-8 row-span-3" title="League Play Schedule">
+	<DashboardCard class="col-span-1 md:col-span-2 lg:col-span-4 xl:col-span-8 row-span-1 md:row-span-3" title="League Play Schedule">
 		{#if fetching}
 			<div class="h-full w-full flex items-center justify-center">
 				<Spinner class="h-16 w-full"/>

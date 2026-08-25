@@ -28,15 +28,15 @@
 
 <section class="w-full h-full flex justify-between flex-col">
     <div>
-        <div class="flex justify-between w-full mb-4">
+        <div class="flex flex-col sm:flex-row justify-between w-full mb-4 gap-3">
             <h2>You are currently queued!</h2>
-            <button class="btn btn-error btn-outline lg:btn-sm" disabled={!leaveButtonEnabled} on:click={abandon}>Leave
+            <button class="btn btn-error btn-outline lg:btn-sm w-full sm:w-auto" disabled={!leaveButtonEnabled} on:click={abandon}>Leave
                 Scrim
             </button>
         </div>
         <div class="w-full mb-4">
             <h3>Scrim Details:</h3>
-            <dl>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
                 <dt>Skill Group:</dt>
                 <dd>{scrim.skillGroup?.profile?.description}</dd>
                 <dt>Game:</dt>
@@ -48,15 +48,15 @@
                 <dt>Competitive:</dt>
                 <dd>{scrim.settings.competitive ? "Yes" : "No"}</dd>
                 <dt>Created At:</dt>
-                <dd>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET")}</dd>
+                <dd>{format(utcToZonedTime(new Date(scrim.createdAt), "America/New_York"), "MM'/'d h:mmaaa 'ET'")}</dd>
             </dl>
         </div>
         {#if scrim.currentGroup}
         <div class='w-full'>
             <h3>You are currently in a group</h3>
-            <div class='flex gap-4 items-center'>
-                <p>Share this code with your friends so they can join your group</p>
-                <span class='inline-block px-4 py-2 text-2xl text-primary/80 bg-base-200/60 rounded-lg'>{scrim.currentGroup.code}</span>
+            <div class='flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center'>
+                <p class="text-sm">Share this code with your friends so they can join your group</p>
+                <span class='inline-block px-4 py-2 text-xl text-primary/80 bg-base-200/60 rounded-lg'>{scrim.currentGroup.code}</span>
             </div>
             <div>
                 <p>Other players in your group:</p>

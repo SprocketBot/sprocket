@@ -37,9 +37,9 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="drawer-side">
+        <div class="drawer-side z-50">
             <label for="nav-drawer" class="drawer-overlay"></label>
-            <div class="px-4 w-56 py-16 bg-gray-900 lg:bg-transparent">
+            <div class="px-4 w-64 md:w-56 py-16 bg-gray-900 lg:bg-transparent">
                 <Navigation />
                 <slot name="sidebar" />
             </div>
@@ -53,8 +53,8 @@
         h-screen w-screen flex flex-col;
     }
     section {
-        @apply p-4 h-full flex flex-col py-20 lg:py-4 grid gap-8
-        grid-cols-6;
+        @apply p-2 md:p-4 h-full flex flex-col py-16 md:py-20 lg:py-4 grid gap-2 md:gap-4 lg:gap-8
+        grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6;
         grid-auto-rows: minmax(min-content, 12rem);
 
     }

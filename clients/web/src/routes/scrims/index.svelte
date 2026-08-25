@@ -62,7 +62,7 @@
 </script>
 
 <DashboardLayout>
-    <DashboardCard class="col-span-6 xl:col-span-5 row-span-3">
+    <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-5 xl:col-span-5 row-span-1 md:row-span-3">
         {#if $currentScrim.fetching || $currentUser.fetching}
             <div class="h-full w-full flex items-center justify-center">
                 <Spinner class="h-16 w-full"/>
@@ -70,7 +70,7 @@
         {:else if currentUserFranchises?.includes("FP")}
             <section class="flex flex-col justify-center items-center h-full gap-4">
                 <span class="h-32 text-sprocket block"><FaLock/></span>
-                <span class="text-7xl font-bold text-primary">Former Players Cannot Scrim</span>
+                <span class="text-3xl md:text-5xl lg:text-7xl font-bold text-primary text-center">Former Players Cannot Scrim</span>
             </section>
         {:else if $currentScrim.data?.currentScrim}
             <QueuedView/>
@@ -90,7 +90,7 @@
     <DashboardNumberCard title="Active Players"
                          value={metrics?.totalPlayers ?? 0}
     />
-    <DashboardCard class="col-span-6 xl:col-span-3">
+    <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-3">
         <h3 class="text-lg font-semibold text-sprocket mb-2">Scrim Eligibility</h3>
         <div class="flex flex-col gap-1">
             <span class="text-3xl font-bold {eligibilityStatus.color}">{eligibilityStatus.label}</span>

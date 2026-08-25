@@ -33,7 +33,7 @@
 </script>
 
 <DashboardLayout>
-  <DashboardCard class="col-span-8 row-span-3" title="LFS (Team) Scrims">
+  <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-4 xl:col-span-8 row-span-1 md:row-span-3" title="LFS (Team) Scrims">
     <div class="flex flex-col md:flex-row justify-between mb-4">
       <h2>Available Scrims</h2>
       <button
