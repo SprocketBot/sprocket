@@ -5,7 +5,7 @@ import {
     EventsModule,
     MatchmakingModule,
     MinioModule,
-    PostgresModule,
+    RedisModule,
 } from "@sprocketbot/common";
 
 import {ReplayValidationModule} from "../replay-validation/replay-validation.module";
@@ -21,11 +21,11 @@ import {
 import {ReplaySubmissionUtilService} from "./replay-submission-util.service";
 import {ReplayUploadController} from "./replay-upload.controller";
 import {StatsConverterService} from "./stats-converter/stats-converter.service";
-import {ReplaySubmissionPostgresRepository} from "./persistence/replay-submission-postgres.repository";
+import {SubmissionMigrationService} from "./submission-migration.service";
 
 @Module({
     imports: [
-        PostgresModule,
+        RedisModule,
         MatchmakingModule,
         EventsModule,
         MinioModule,
@@ -41,7 +41,7 @@ import {ReplaySubmissionPostgresRepository} from "./persistence/replay-submissio
         ReplaySubmissionRatificationService,
         CrossFranchiseValidationService,
         StatsConverterService,
-        ReplaySubmissionPostgresRepository,
+        SubmissionMigrationService,
     ],
     controllers: [
         ReplayUploadController,

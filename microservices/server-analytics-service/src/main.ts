@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 import {NestFactory} from "@nestjs/core";
-import {config, PostgresServer} from "@sprocketbot/common";
+import {Transport} from "@nestjs/microservices";
+import {config} from "@sprocketbot/common";
 
 import {AppModule} from "./app.module";
 
+const url = config.transport.url;
 const queue = config.transport.analytics_queue;
 const HEALTH_PORT = 3013;
 
@@ -11,7 +13,14 @@ async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {logger: config.logger.levels});
 
     app.connectMicroservice({
-        strategy: new PostgresServer({queue}),
+        transport: Transport.RMQ,
+        options: {
+            urls: [url],
+            queue: queue,
+            queueOptions: {
+                durable: true,
+            },
+        },
     });
 
     await app.startAllMicroservices();
@@ -20,6 +29,6 @@ async function bootstrap(): Promise<void> {
 
 bootstrap()
     .then(() => {
-        console.log(`Microservice started on Postgres transport queue '${queue}'`);
+        console.log(`Microservice started! Connected to RMQ at '${url}', on queue '${queue}'`);
     })
     .catch(console.error);

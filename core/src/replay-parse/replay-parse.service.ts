@@ -7,6 +7,7 @@ import {
     EventTopic,
     MinioService,
     readToBuffer,
+    RedisService,
     REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
     ResponseStatus,
     SubmissionEndpoint,
@@ -32,6 +33,7 @@ export class ReplayParseService {
     constructor(
         private readonly minioService: MinioService,
         private readonly submissionService: SubmissionService,
+        private readonly redisService: RedisService,
         private readonly eventsService: EventsService,
         private readonly memberService: MemberService,
         private readonly orgTeamPermissionResolution: OrgTeamPermissionResolutionService,
@@ -39,13 +41,14 @@ export class ReplayParseService {
     ) {}
 
     async getSubmission(submissionId: string): Promise<ReplaySubmission> {
-        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionIfExists, submissionId);
+        const result = await this.submissionService.send(SubmissionEndpoint.GetSubmissionRedisKey, {
+            submissionId,
+        });
         if (result.status === ResponseStatus.ERROR) throw result.error;
-        if (!result.data.submission) throw new Error(`Submission ${submissionId} not found`);
 
         // Right now, this is entirely based on faith. If we encounter issues; we can update the graphql types.
         // Writing up a zod schema set for this would be suckage to the 10th degree.
-        return result.data.submission as ReplaySubmission;
+        return this.redisService.getJson<ReplaySubmission>(result.data.redisKey);
     }
 
     /**
@@ -189,7 +192,8 @@ export class ReplayParseService {
                 if (typeof v.payload !== "object") {
                     return;
                 }
-                this.getSubmission(v.payload.submissionId)
+                this.redisService
+                    .getJson<ReplaySubmission>(v.payload.redisKey)
                     .then(async submission => this.pubsub.publish(submission.id, {
                         followSubmission: submission,
                     }))

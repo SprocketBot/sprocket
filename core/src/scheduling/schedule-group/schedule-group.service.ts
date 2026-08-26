@@ -59,20 +59,9 @@ export class ScheduleGroupService {
             conditions.end = Raw(alias => `${alias} > CURRENT_TIMESTAMP`);
         }
 
-        // Eagerly load nested relations to avoid N+1 queries
-        // The GraphQL query requests: seasons -> childGroups -> fixtures -> homeFranchise/awayFranchise
         return this.scheduleGroupRepo.find({
             where: conditions,
-            relations: [
-                "type", 
-                "game",
-                "childGroups",
-                "childGroups.fixtures",
-                "childGroups.fixtures.homeFranchise",
-                "childGroups.fixtures.homeFranchise.profile",
-                "childGroups.fixtures.awayFranchise",
-                "childGroups.fixtures.awayFranchise.profile",
-            ],
+            relations: ["type", "game"],
         });
     }
 

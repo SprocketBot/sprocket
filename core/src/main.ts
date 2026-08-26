@@ -1,8 +1,8 @@
 import {ValidationPipe} from "@nestjs/common";
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
-import {AllExceptionsFilter, config, PostgresServer} from "@sprocketbot/common";
+import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import {ht} from "date-fns/locale";
-import {Request, Response} from "express";
 import {writeFile} from "fs/promises";
 import {SpelunkerModule} from "nestjs-spelunker";
 
@@ -25,14 +25,17 @@ async function bootstrap(): Promise<void> {
         logger: config.logger.levels,
     });
 
-    app.getHttpAdapter().getInstance().get("/healthz", (_req: Request, res: Response) => {
-        res.status(200).json({status: "ok"});
-    });
-
     app.use(corsPreflightMiddleware);
-
     app.connectMicroservice({
-        strategy: new PostgresServer({queue: config.transport.core_queue}),
+        transport: Transport.RMQ,
+        options: {
+            urls: [config.transport.url],
+            queue: config.transport.core_queue,
+            queueOptions: {
+                durable: true,
+            },
+            heartbeat: 120,
+        },
     });
     app.enableCors(corsOptions);
     app.useGlobalPipes(new ValidationPipe());

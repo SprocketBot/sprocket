@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "postinstall": "patch-package && npm run build:common",
+    "postinstall": "npm run build:common",
     "build": "npm run build --workspaces --if-present",
     "build:common": "npm run build --workspace=common",
     "infra:install": "bash ./scripts/infra/pulumi-install-all.sh --with-foundation",
@@ -81,7 +81,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-svelte3": "^3.4.1",
     "husky": "^7.0.4",
-    "patch-package": "^8.0.1",
     "prettier": "^2.6.2"
   },
   "lint-staged": {
@@ -93,7 +92,6 @@
     "@types/node-fetch": "^2.6.13",
     "formdata-node": "^6.0.3",
     "graphql-request": "^7.4.0",
-    "node-fetch": "^2.7.0",
-    "passport-jwt": "^4.0.1"
+    "node-fetch": "^2.7.0"
   }
 }

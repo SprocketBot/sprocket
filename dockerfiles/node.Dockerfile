@@ -1,4 +1,4 @@
-FROM node:26-alpine as base
+FROM node:18-alpine as base
 
 # Set current commit SHA in env
 ARG COMMIT_SHA
@@ -19,3 +19,4 @@ COPY microservices microservices
 RUN npm i -g @nestjs/cli && npm i --legacy-peer-deps --include=optional
 
 RUN npm run build --workspace=common
+

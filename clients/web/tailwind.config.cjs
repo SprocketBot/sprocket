@@ -22,6 +22,7 @@ const sprocketPalette = {
 };
 
 const config = {
+  mode: 'jit',
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
     extend: {
@@ -150,7 +151,7 @@ const config = {
     ],
     base: true,
     utils: true,
-    logs: false,
+    logs: true,
     rtl: false,
     darkTheme: 'dark',
   },

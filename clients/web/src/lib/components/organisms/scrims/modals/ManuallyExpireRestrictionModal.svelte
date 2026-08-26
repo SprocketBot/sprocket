@@ -29,10 +29,10 @@ const expireRestriction = async () => {
 <Modal title="Expire Queue Ban Restriction" bind:visible id="expire-restriction-modal" size="lg">
     <section slot="body">
         <div class="form-control w-full">
-            <label class="label" for="expire-restriction-reason">
+            <label class="label">
                 <span class="label-text">Reason for Removing Restriction</span>
               </label> 
-            <textarea id="expire-restriction-reason" placeholder="Because he forgot to check in..." bind:value={reason} />
+            <textarea placeholder="Because he forgot to check in..." bind:value={reason} />
         </div>
 
         <div class="form-control w-full">

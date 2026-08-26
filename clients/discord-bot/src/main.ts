@@ -1,5 +1,6 @@
 import {HttpAdapterHost, NestFactory} from "@nestjs/core";
-import {AllExceptionsFilter, config, PostgresServer} from "@sprocketbot/common";
+import {Transport} from "@nestjs/microservices";
+import {AllExceptionsFilter, config} from "@sprocketbot/common";
 import fetch from "node-fetch";
 
 import {AppModule} from "./app.module";
@@ -9,8 +10,16 @@ global.fetch = fetch as any;
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.createMicroservice(AppModule, {
+        transport: Transport.RMQ,
         logger: config.logger.levels,
-        strategy: new PostgresServer({queue: config.transport.bot_queue}),
+        options: {
+            urls: [config.transport.url],
+            queue: config.transport.bot_queue,
+            queueOptions: {
+                durable: true,
+            },
+            heartbeat: 120,
+        },
     });
 
     const httpAdapter = app.get(HttpAdapterHost);

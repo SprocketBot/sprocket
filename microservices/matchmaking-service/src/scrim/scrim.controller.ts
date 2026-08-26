@@ -40,7 +40,7 @@ export class ScrimController {
     @MessagePattern(MatchmakingEndpoint.GetAllScrims)
     async getAllScrims(@Payload() payload: unknown): Promise<Scrim[]> {
         const data = MatchmakingSchemas.GetAllScrims.input.parse(payload);
-        return this.scrimCrudService.getAllScrims(data);
+        return this.scrimCrudService.getAllScrims(data.skillGroupId);
     }
 
     @MessagePattern(MatchmakingEndpoint.GetScrim)

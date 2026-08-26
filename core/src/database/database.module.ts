@@ -1,6 +1,6 @@
 import {Module} from "@nestjs/common";
 import {TypeOrmModule} from "@nestjs/typeorm";
-import {config, PostgresModule} from "@sprocketbot/common";
+import {config} from "@sprocketbot/common";
 
 import {AuthorizationModule} from "./authorization/authorization.module";
 import {ConfigurationModule} from "./configuration/configuration.module";
@@ -41,19 +41,16 @@ const modules = [
         logging: config.db.enable_logs,
         // Only enable SSL if not in local development (postgres host != "postgres" or "localhost")
         ssl:
-            config.db.host === "postgres" || config.db.host === "localhost"
-                ? false
-                : {
-                      rejectUnauthorized: false,
-                  },
-        extra: {
-            max: config.db.pool_size,
-        },
+      config.db.host === "postgres" || config.db.host === "localhost"
+          ? false
+          : {
+                  rejectUnauthorized: false,
+              },
     }),
 ];
 
 @Module({
-    imports: [...modules, PostgresModule],
-    exports: [...modules, PostgresModule],
+    imports: modules,
+    exports: modules,
 })
 export class DatabaseModule {}

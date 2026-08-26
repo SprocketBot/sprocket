@@ -9,7 +9,7 @@ import {v4 as uuidv4} from "uuid";
 import type {MicroserviceRequestOptions} from "../../global.types";
 import {CommonClient, ResponseStatus} from "../../global.types";
 import type {
-    SubmissionEndpoint, SubmissionInput, SubmissionOutput, SubmissionResponse,
+    SubmissionEndpoint, SubmissionInput, SubmissionResponse,
 } from "./submission.types";
 import {SubmissionSchemas} from "./submission.types";
 
@@ -38,26 +38,11 @@ export class SubmissionService {
 
             const response = (await lastValueFrom(rx)) as unknown;
 
-            const initialParse = outputSchema.safeParse(response);
-            let parsed: SubmissionOutput<E>;
-
-            if (initialParse.success) {
-                parsed = initialParse.data as SubmissionOutput<E>;
-            } else if (response && typeof response === "object" && "data" in response) {
-                parsed = outputSchema.parse((response as {data: unknown}).data) as SubmissionOutput<E>;
-            } else if (!initialParse.success && response && typeof response === "object" && Object.keys(response).length === 0) {
-                this.logger.debug(`Received empty object {}, treating as empty array for ${endpoint}`);
-                parsed = outputSchema.parse([]) as SubmissionOutput<E>;
-            } else if (!initialParse.success && (response === null || response === undefined)) {
-                parsed = outputSchema.parse([]) as SubmissionOutput<E>;
-            } else {
-                throw initialParse.error;
-            }
-
-            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(parsed).substring(0, 100)}...)`);
+            const output = outputSchema.parse(response);
+            this.logger.verbose(`| < (${rid}) - | \`${endpoint}\` (${JSON.stringify(output)})`);
             return {
                 status: ResponseStatus.SUCCESS,
-                data: parsed,
+                data: output,
             };
         } catch (e) {
             this.logger.warn(`| < (${rid}) - | \`${endpoint}\` failed ${(e as Error).message}`);

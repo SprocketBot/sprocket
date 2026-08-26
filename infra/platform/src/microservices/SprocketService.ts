@@ -28,6 +28,9 @@ export type SprocketServiceConfigTemplateValues = {
     logger: {
         levels: string | pulumi.Output<string> | boolean
     },
+    rmq: {
+        host: string | pulumi.Output<string>,
+    },
     database: {
         host: string | pulumi.Output<string>,
         port: number | pulumi.Output<number>,

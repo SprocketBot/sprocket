@@ -87,10 +87,9 @@ export class ScrimModuleResolver {
     ): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("Player is not connected to an organization");
 
-        return this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            status,
-        }) as Promise<Scrim[]>;
+        const scrims = await this.scrimService.getAllScrims();
+        if (status) return scrims.filter(s => s.status === status) as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId) as Scrim[];
     }
 
     @Query(() => [Scrim])
@@ -110,14 +109,11 @@ export class ScrimModuleResolver {
             where: {member: {user: {id: user.userId} } },
             relations: ["member", "skillGroup"],
         });
-        const skillGroupIds = players.map(p => p.skillGroupId);
-        const scrims = await this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            status,
-            skillGroupIds,
-        });
+        const scrims = await this.scrimService.getAllScrims();
 
-        return scrims.filter(s => !s.settings.competitive || skillGroupIds.includes(s.skillGroupId)) as Scrim[];
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId
+        && (!s.settings.competitive || players.some(p => s.skillGroupId === p.skillGroupId))
+        && s.status === status) as Scrim[];
     }
 
     @Query(() => [Scrim])
@@ -125,13 +121,12 @@ export class ScrimModuleResolver {
     async getLFSScrims(@CurrentUser() user: UserPayload): Promise<Scrim[]> {
         if (!user.currentOrganizationId) throw new GraphQLError("User is not connected to an organization");
 
-        return this.scrimService.getAllScrims({
-            organizationId: user.currentOrganizationId,
-            lfs: true,
-        }) as Promise<Scrim[]>;
+        const scrims = await this.scrimService.getAllScrims();
+        return scrims.filter(s => s.organizationId === user.currentOrganizationId && s.settings.lfs) as Scrim[];
     }
 
     @Query(() => Scrim, {nullable: true})
+    @UseGuards(GqlJwtGuard)
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
         return this.scrimService.getScrimByPlayer(user.userId) as Promise<Scrim | null>;
     }

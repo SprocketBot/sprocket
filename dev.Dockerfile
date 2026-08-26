@@ -1,4 +1,4 @@
-FROM node:26-alpine
+FROM node:18-alpine
 
 ARG SERVICE_PATH
 

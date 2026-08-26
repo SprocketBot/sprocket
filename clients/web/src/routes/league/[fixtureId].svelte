@@ -40,7 +40,7 @@
 </script>
 
 <DashboardLayout>
-	<DashboardCard class="col-span-8 row-span-3"
+	<DashboardCard class="col-span-1 md:col-span-2 lg:col-span-4 xl:col-span-8 row-span-1 md:row-span-3"
 		title={fixture ? `${fixture.scheduleGroup.description} | ${fixture.homeFranchise.profile.title} vs ${fixture.awayFranchise.profile.title}` : ""}
 	>
 		{#if fetching}
@@ -60,11 +60,11 @@
 			</div>
 
 			{#if fixture.matches && fixture.matches.length > 0}
-				<div class="w-full grid grid-cols-2 2xl:grid-cols-3 gap-8">
+				<div class="w-full grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4 md:gap-8">
 					{#each fixture.matches.sort((a, b) => a.skillGroup.ordinal - b.skillGroup.ordinal) as m}
 						<section class="bg-gray-700 flex flex-col items-center gap-4 p-4 rounded-xl">
 							<header>
-								<h3 class="text-2xl font-bold">{m.gameMode.description} | {m.skillGroup.profile.description}</h3>
+								<h3 class="text-lg md:text-2xl font-bold text-center">{m.gameMode.description} | {m.skillGroup.profile.description}</h3>
 							</header>
 							{#if m.submissionStatus === "completed"}
 								<span class="btn btn-outline btn-disabled">Completed</span>

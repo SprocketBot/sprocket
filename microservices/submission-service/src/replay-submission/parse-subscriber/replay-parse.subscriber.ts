@@ -6,6 +6,7 @@ import {
     CeleryService, EventsService, EventTopic, Task,
 } from "@sprocketbot/common";
 
+import {getSubmissionKey} from "../../utils";
 import {ReplaySubmissionService} from "../replay-submission.service";
 import {ReplaySubmissionCrudService} from "../replay-submission-crud/replay-submission-crud.service";
 
@@ -45,6 +46,7 @@ export class ReplayParseSubscriber {
 
                 await this.eventsService.publish(EventTopic.SubmissionProgress, {
                     submissionId: submissionId,
+                    redisKey: getSubmissionKey(submissionId),
                 });
                 // TODO: Clean up subscription to prevent mem leak
             } catch (e) {

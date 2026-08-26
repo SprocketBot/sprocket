@@ -28,6 +28,7 @@ import {
 } from "@sprocketbot/common";
 import {isEqual} from "lodash";
 
+import {getSubmissionKey} from "../utils";
 import type {ValidationError, ValidationResult} from "./types/validation-result";
 import {sortIds} from "./utils";
 
@@ -273,6 +274,7 @@ export class ReplayValidationService {
         if (!scrimUpdateResponse.data) throw new Error("Could not add players to LFS scrim.");
         await this.eventsService.publish(EventTopic.SubmissionUpdated, {
             submissionId: submission.id,
+            redisKey: getSubmissionKey(submission.id),
         });
 
         // ========================================
