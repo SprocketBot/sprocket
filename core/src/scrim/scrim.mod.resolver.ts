@@ -126,6 +126,7 @@ export class ScrimModuleResolver {
     }
 
     @Query(() => Scrim, {nullable: true})
+    @UseGuards(GqlJwtGuard)
     async getCurrentScrim(@CurrentUser() user: UserPayload): Promise<Scrim | null> {
         return this.scrimService.getScrimByPlayer(user.userId) as Promise<Scrim | null>;
     }
