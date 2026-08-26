@@ -5,6 +5,7 @@ import {
     Logger,
     Request,
     Response,
+    UnauthorizedException,
     UseGuards,
 } from "@nestjs/common";
 import {config} from "@sprocketbot/common";
@@ -63,10 +64,19 @@ export class OauthController {
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
         const ourUser = (req as Req & {user: UserPayload;}).user;
         this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
-        const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
-        const authAccounts: UserAuthenticationAccount[]
-      = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
+
+        // Validate that the user has a Discord account that maps to them
+        // This prevents stale tokens (e.g., from before email fallback was removed) from working
+        const authAccounts = await this.userService.getUserAuthenticationAccountsForUser(ourUser.userId);
         const discordAccount = authAccounts.find(obj => obj.accountType === UserAuthenticationAccountType.DISCORD);
+
+        // If no Discord account found, the token is invalid (user may have been reassigned)
+        if (!discordAccount) {
+            this.logger.warn(`Token validation failed: No Discord account found for user ${ourUser.userId}. User may have been reassigned.`);
+            throw new UnauthorizedException('Token no longer valid - please re-login');
+        }
+
+        const userProfile = await this.userService.getUserProfileForUser(ourUser.userId);
         if (discordAccount) {
             const orgs = await this.orgTeamPermissionResolution.resolveOrgTeamsForUser(ourUser.userId);
             const payload: AuthPayload = {
