@@ -101,36 +101,46 @@ export class PlayerResolver {
   }
 
   @ResolveField()
-  async franchiseName(@Root() player: Player): Promise<string> {
-    if (player.franchiseName) return player.franchiseName;
+  async franchiseName(@Root() player: Player): Promise<string | null> {
+    try {
+      if (player.franchiseName) return player.franchiseName;
 
-    if (!player.member)
-      player.member = await this.popService.populateOneOrFail(Player, player, 'member');
-    if (!player.member.user)
-      player.member.user = await this.popService.populateOneOrFail(Member, player.member, 'user');
+      if (!player.member)
+        player.member = await this.popService.populateOneOrFail(Player, player, 'member');
+      if (!player.member.user)
+        player.member.user = await this.popService.populateOneOrFail(Member, player.member, 'user');
 
-    const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(
-      player.member.user.id,
-    );
-    // Because we are using MLEDB right now; assume that we only have one
-    return franchiseResult[0].name;
+      const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(
+        player.member.user.id,
+      );
+      // Because we are using MLEDB right now; assume that we only have one
+      return franchiseResult[0]?.name ?? null;
+    } catch (error) {
+      this.logger.warn(`Failed to resolve franchiseName for player ${player.id}: ${error}`);
+      return null;
+    }
   }
 
   @ResolveField()
   async franchisePositions(@Root() player: Player): Promise<string[]> {
-    if (player.franchisePositions) return player.franchisePositions;
+    try {
+      if (player.franchisePositions) return player.franchisePositions;
 
-    if (!player.member) {
-      player.member = await this.popService.populateOneOrFail(Player, player, 'member');
+      if (!player.member) {
+        player.member = await this.popService.populateOneOrFail(Player, player, 'member');
+      }
+      if (!player.member.user)
+        player.member.user = await this.popService.populateOneOrFail(Member, player.member, 'user');
+
+      const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(
+        player.member.user.id,
+      );
+      // Because we are using MLEDB right now; assume that we only have one
+      return franchiseResult[0]?.staffPositions.map(sp => sp.name) ?? [];
+    } catch (error) {
+      this.logger.warn(`Failed to resolve franchisePositions for player ${player.id}: ${error}`);
+      return [];
     }
-    if (!player.member.user)
-      player.member.user = await this.popService.populateOneOrFail(Member, player.member, 'user');
-
-    const franchiseResult = await this.franchiseService.getPlayerFranchisesByUserId(
-      player.member.user.id,
-    );
-    // Because we are using MLEDB right now; assume that we only have one
-    return franchiseResult[0].staffPositions.map(sp => sp.name);
   }
 
   @ResolveField()
