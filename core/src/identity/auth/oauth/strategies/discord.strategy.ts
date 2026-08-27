@@ -82,6 +82,7 @@ export class DiscordStrategy extends PassportStrategy(Strategy, "discord") {
             const userProfile: Omit<UserProfile, IrrelevantFields | "id" | "user"> = {
                 email: profile.email,
                 displayName: profile.username,
+                tokenVersion: 0,
             };
 
             const authAcct: Omit<UserAuthenticationAccount, IrrelevantFields | "id" | "user"> = {

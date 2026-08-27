@@ -29,6 +29,14 @@ export class UserProfile extends BaseModel {
     @Field(() => String)
   description?: string;
 
+    @Column({default: 0})
+    @Field(() => Number)
+  /**
+   * Token version - incremented to invalidate all active sessions.
+   * When this value changes, all existing tokens become invalid.
+   */
+  tokenVersion: number;
+
     @OneToOne(() => User, user => user.profile)
     @JoinColumn()
     @Field(() => User)

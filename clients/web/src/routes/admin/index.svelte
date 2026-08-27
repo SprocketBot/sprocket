@@ -5,6 +5,7 @@
         AdminScrimTable,
         AdminSettings,
         AdminSubmissionTable,
+        AdminSessionManagement,
         DashboardCard,
         DashboardLayout,
     } from "$lib/components";
@@ -63,6 +64,14 @@
     >
         <div class=" flex justify-center">
             <AdminBanTable />
+        </div>
+    </DashboardCard>
+    <DashboardCard
+        title="Session Management"
+        class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-5 row-span-1 md:row-span-2"
+    >
+        <div class=" flex justify-center">
+            <AdminSessionManagement />
         </div>
     </DashboardCard>
 </DashboardLayout>
