@@ -1,0 +1,71 @@
+name: 'E2E Tests'
+
+on:
+  pull_request:
+    paths:
+      - 'clients/web/**'
+      - '.github/workflows/e2e.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auth-e2e:
+    name: 'Auth E2E Tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd clients/web
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          cd clients/web
+          npx playwright install --with-deps chromium
+
+      - name: Run Auth E2E tests
+        env:
+          BASE_URL: ${{ vars.STAGING_URL || 'https://staging.sprocket.mlesports.gg' }}
+          CORE_API: ${{ vars.CORE_API || 'https://api.sprocket.mlesports.gg' }}
+          TEST_USER_ID: ${{ vars.TEST_USER_ID }}
+          ADMIN_TEST_TOKEN: ${{ secrets.ADMIN_TEST_TOKEN }}
+        run: |
+          cd clients/web
+          npx playwright test tests/e2e/auth.spec.ts --reporter=line
+
+  web-smoke:
+    name: 'Web Smoke Test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd clients/web
+          npm install
+
+      - name: Install Playwright browsers
+        run: |
+          cd clients/web
+          npx playwright install --with-deps chromium
+
+      - name: Smoke test - page loads
+        run: |
+          cd clients/web
+          npx playwright test tests/e2e/smoke.spec.ts --reporter=line

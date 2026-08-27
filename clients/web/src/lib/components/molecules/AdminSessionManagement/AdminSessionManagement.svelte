@@ -1,13 +1,14 @@
 <script lang="ts">
     import { session } from "$app/stores";
+    import { apiUrl } from "$lib/utils";
 
     let loading = false;
     let message = "";
     let error = "";
     let userIdToLogout = "";
 
-    // Get the API URL from the session config
-    $: coreUrl = $session.config?.coreUrl || "https://core.sprocket.mlesports.gg";
+    // Get the API URL from the session config - use the same gqlUrl as other API calls
+    $: coreUrl = $session.config?.client ? apiUrl($session.config.client, "") : "https://api.sprocket.mlesports.gg";
 
     async function handleLogoutAll() {
         if (!confirm("Are you sure you want to force-logout ALL users? This will invalidate everyone's session.")) {
