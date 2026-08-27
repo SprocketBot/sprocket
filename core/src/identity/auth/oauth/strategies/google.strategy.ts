@@ -40,6 +40,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
                 displayName: `${profile.name.givenName} ${profile.name.familyName.charAt(0)}`,
                 firstName: profile.name.givenName,
                 lastName: profile.name.familyName,
+                tokenVersion: 0,
             };
 
             const authAcct = {

@@ -26,8 +26,8 @@ import {OauthService} from "./oauth.service";
 import type {AccessToken} from "./types";
 import type {UserPayload} from "./types";
 import type {AuthPayload} from "./types/payload.type";
-import {GqlJwtGuard} from "../guards";
-import {MLEOrganizationTeamGuard} from "../../organization/guards";
+import {GqlJwtGuard} from "../gql-auth-guard";
+import {MLEOrganizationTeamGuard} from "../../mledb/mledb-player/mle-organization-team.guard";
 
 /**
  * DTO for admin session management endpoints

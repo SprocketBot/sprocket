@@ -78,6 +78,7 @@ describe("DiscordStrategy", () => {
         profile: {
             displayName: "Test User",
             email: "test@example.com",
+            tokenVersion: 0,
         },
     };
 

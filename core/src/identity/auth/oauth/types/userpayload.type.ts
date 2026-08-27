@@ -8,4 +8,9 @@ export class UserPayload {
     currentOrganizationId?: number;
 
     orgTeams?: MLE_OrganizationTeam[];
+
+    /**
+     * Token version - used to invalidate sessions when incremented.
+     */
+    tokenVersion?: number;
 }
