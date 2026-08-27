@@ -35,9 +35,10 @@ jobs:
 
       - name: Run Auth E2E tests
         env:
-          BASE_URL: ${{ vars.STAGING_URL || 'https://staging.sprocket.mlesports.gg' }}
+          # Default to production since staging/dev aren't deployed
+          BASE_URL: ${{ vars.BASE_URL || 'https://sprocket.mlesports.gg' }}
           CORE_API: ${{ vars.CORE_API || 'https://api.sprocket.mlesports.gg' }}
-          TEST_USER_ID: ${{ vars.TEST_USER_ID }}
+          TEST_USER_ID: ${{ vars.TEST_USER_ID || '3001' }}
           ADMIN_TEST_TOKEN: ${{ secrets.ADMIN_TEST_TOKEN }}
         run: |
           cd clients/web
