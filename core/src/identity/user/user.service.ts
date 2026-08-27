@@ -159,15 +159,37 @@ export class UserService {
     }
 
     /**
-   * Searches for a UserProfile for a given user or fails
-   * @param userId The id of the user whose profile to find
-   * @returns The found UserProfile
-   */
+     * Searches for a UserProfile for a given user or fails
+     * @param userId The id of the user whose profile to find
+     * @returns The found UserProfile
+     */
     async getUserProfileForUser(userId: number): Promise<UserProfile> {
         const org = await this.userRepository.findOneOrFail({
             where: {id: userId},
             relations: {profile: true},
         });
         return org.profile;
+    }
+
+    /**
+     * Save a single user profile
+     * @param profile The user profile to save
+     */
+    async saveUserProfile(profile: UserProfile): Promise<UserProfile> {
+        return this.userProfileRepository.save(profile);
+    }
+
+    /**
+     * Get all user profiles (for admin operations)
+     */
+    async getAllUserProfiles(): Promise<UserProfile[]> {
+        return this.userProfileRepository.find();
+    }
+
+    /**
+     * Save multiple user profiles at once
+     */
+    async saveUserProfiles(profiles: UserProfile[]): Promise<UserProfile[]> {
+        return this.userProfileRepository.save(profiles);
     }
 }
