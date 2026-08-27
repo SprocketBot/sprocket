@@ -14,10 +14,10 @@ const doAuthRefresh = async (
     currentCookies: string,
 ): Promise<refreshPayload | null> => {
     let newCookiesString = "";
-    // If  refresh it
     // Get the refresh token out of user's cookies
-    const refreshToken = currentCookies
-        .split("; ")
+    // Handle various cookie header formats robustly
+    const cookiePairs = currentCookies.split("; ").map(c => c.trim()).filter(Boolean);
+    const refreshToken = cookiePairs
         .find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
         ?.split("=")[1];
     if (refreshToken) {
@@ -103,8 +103,8 @@ export const handle: Handle = async ({event, resolve}) => {
             const currentCookies = event.request.headers.get("cookie");
 
             if (currentCookies) {
-                const rawToken = currentCookies
-                    .split("; ")
+                const cookiePairs = currentCookies.split("; ").map(c => c.trim()).filter(Boolean);
+                const rawToken = cookiePairs
                     .find(c => c.split("=")[0] === constants.auth_cookie_key)
                     ?.split("=")[1];
 
@@ -113,33 +113,48 @@ export const handle: Handle = async ({event, resolve}) => {
                     // by ".")
                     const token = JSON.parse(Buffer.from(rawToken.split(".")[1], "base64").toString());
 
-                    // Check if JWT has expired
+                    // Check if JWT has expiration claim
                     const now = new Date();
-                    const exp = new Date(token.exp * 1000);
-                    const remaining = exp.getTime() - now.getTime();
-
-                    if (remaining > 0) {
-                        // Just refresh the session with current data
+                    if (!token.exp) {
+                        // No expiration claim - treat as valid but log warning
+                        console.warn("JWT has no exp claim - treating as valid");
                         event.locals.user = token;
                         event.locals.token = rawToken;
                     } else {
-                        // Access token exists in cookies, see if we can
-                        // refresh it.
-                        const result = await doAuthRefresh(
-                            apiUrl(config.client, "/refresh"),
-                            currentCookies,
-                        );
-                        if (result) {
-                            event.request.headers.set("cookie", result.cookiesString);
-                            newCookies = result.cookies;
-                            // Refresh the session as well
-                            event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
-                            event.locals.token = result.accessToken;
+                        const exp = new Date(token.exp * 1000);
+                        const remaining = exp.getTime() - now.getTime();
+
+                        if (remaining > 0) {
+                            // Token is valid, use it
+                            event.locals.user = token;
+                            event.locals.token = rawToken;
+                        } else {
+                            // Access token has expired, attempt to refresh
+                            console.log("Access token expired, attempting refresh...");
+                            const result = await doAuthRefresh(
+                                apiUrl(config.client, "/refresh"),
+                                currentCookies,
+                            );
+                            if (result) {
+                                event.request.headers.set("cookie", result.cookiesString);
+                                newCookies = result.cookies;
+                                // Refresh the session as well
+                                event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
+                                event.locals.token = result.accessToken;
+                                console.log("Token refresh successful");
+                            } else {
+                                // Refresh failed - clear the stale session
+                                // The old token is no longer valid, don't trust it
+                                console.log("Token refresh failed - clearing session");
+                                event.locals.user = undefined;
+                                event.locals.token = undefined;
+                            }
                         }
                     }
                 } else {
                     // No access token exists in cookies, see if we can
-                    // refresh it anyway.
+                    // refresh it anyway (user might have refresh token without access token)
+                    console.log("No access token, attempting refresh with refresh token...");
                     const result = await doAuthRefresh(
                         apiUrl(config.client, "/refresh"),
                         currentCookies,
@@ -150,6 +165,12 @@ export const handle: Handle = async ({event, resolve}) => {
                         // Refresh the session as well
                         event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
                         event.locals.token = result.accessToken;
+                        console.log("Token refresh successful (no access token case)");
+                    } else {
+                        // Refresh failed - no valid tokens, clear any residual session
+                        console.log("Token refresh failed - clearing session (no access token case)");
+                        event.locals.user = undefined;
+                        event.locals.token = undefined;
                     }
                 }
             }
@@ -169,7 +190,8 @@ export const getSession: GetSession = async event => {
 
     // Anything put on the session here is available in the client
     // Make sure it is safe and secure to do so!
-    if (event.locals.user) {
+    // Only return user data if it exists AND is valid (has userId)
+    if (event.locals.user && event.locals.user.userId) {
         return {
             config: config.client,
             user: event.locals.user,
@@ -177,5 +199,8 @@ export const getSession: GetSession = async event => {
         };
     }
 
+    // No valid user - return just the config, not user data
+    // This ensures unauthenticated users get a clean session
+    console.log("getSession: No valid user in session, returning empty session");
     return {config: config.client};
 };
