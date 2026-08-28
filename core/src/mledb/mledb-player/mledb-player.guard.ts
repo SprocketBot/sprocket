@@ -26,9 +26,22 @@ export class FormerPlayerScrimGuard implements CanActivate {
             return true;
         }
 
-        const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(payload.userId);
-
-        if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player in MLE");
+        try {
+            const mlePlayer = await this.mledbPlayerService.getMlePlayerBySprocketUser(payload.userId);
+            // User has no MLE player record - allow access (not a former player)
+            if (!mlePlayer) {
+                return true;
+            }
+            if (mlePlayer.teamName === "FP") throw new GraphQLError("User is a former player in MLE");
+        } catch (e) {
+            // If user has no Discord auth account or no MLE player record, allow access
+            // They simply haven't been migrated to MLE yet
+            if (e instanceof Error && e.message.includes("Discord Authentication Account not found")) {
+                return true;
+            }
+            // Re-throw other errors (database errors, etc.)
+            throw e;
+        }
 
         return true;
     }
