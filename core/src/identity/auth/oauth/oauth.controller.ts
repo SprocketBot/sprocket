@@ -76,6 +76,12 @@ export class OauthController {
     @Get("refresh")
     async refreshTokens(@Request() req: Req): Promise<AccessToken> {
         const ourUser = (req as Req & {user: UserPayload;}).user;
+        
+        // Guard check: if user is undefined, JWT was invalid
+        if (!ourUser) {
+            throw new UnauthorizedException('Invalid token - please re-login');
+        }
+        
         this.logger.verbose(`Refreshing tokens for user ${JSON.stringify(ourUser)}`);
 
         // Get the current user profile to check tokenVersion
