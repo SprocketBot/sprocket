@@ -58,7 +58,7 @@ import {UtilModule} from "./util/util.module";
                 return {req};
             },
             tracing: true,
-            cors: false,
+            cors: true,
 
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
             uploads: false,
