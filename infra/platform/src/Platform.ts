@@ -138,10 +138,10 @@ export class Platform extends pulumi.ComponentResource {
         const fullIpRule = ipRule ? ` || ${ipRule}` : ""
 
         // Core service: path-based routing for API endpoints
-        // Matches /graphql, /login, /authentication/*, and other API paths
+        // Matches /graphql, /login, /refresh, /authentication/*, /admin/*, and /api/*
         const coreLabels = new TraefikLabels(`sprocket-core-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")
-            .rule(`PathPrefix(\`/graphql\`) || PathPrefix(\`/login\`) || PathPrefix(\`/authentication\`) || PathPrefix(\`/api\`)`)
+            .rule(`PathPrefix(\`/graphql\`) || PathPrefix(\`/login\`) || PathPrefix(\`/refresh\`) || PathPrefix(\`/authentication\`) || PathPrefix(\`/admin\`) || PathPrefix(\`/api\`)`)
             .targetPort(3001)
         const webLabels = new TraefikLabels(`sprocket-web-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")

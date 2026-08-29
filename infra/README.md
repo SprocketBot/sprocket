@@ -108,9 +108,9 @@ Canonical mapping (Pulumi platform stack names, subdomains, and public hostnames
 
 | Pulumi `platform` stack | Config `platform:subdomain` | Example Traefik hosts |
 | --- | --- | --- |
-| `prod` | `main` | `sprocket.mlesports.gg` (API at /graphql, /login, /authentication/*), `rabbitMq.sprocket.mlesports.gg` |
-| `dev` | `dev` | `dev.sprocket.mlesports.gg` (API at /graphql, /login, /authentication/*), … |
-| `staging` | `staging` | `staging.sprocket.mlesports.gg` (API at /graphql, /login, /authentication/*), … |
+| `prod` | `main` | `sprocket.mlesports.gg` (API at /graphql, /login, /refresh, /authentication/*, /admin/*), `rabbitMq.sprocket.mlesports.gg` |
+| `dev` | `dev` | `dev.sprocket.mlesports.gg` (API at /graphql, /login, /refresh, /authentication/*, /admin/*), … |
+| `staging` | `staging` | `staging.sprocket.mlesports.gg` (API at /graphql, /login, /refresh, /authentication/*, /admin/*), … |
 
 Hostnames are derived in `infra/platform` from `platform:hostname` and `platform:subdomain` (`global/helpers/buildHost.ts` and `Platform.ts`). The dev lane now uses dedicated `layer_1/dev`, `layer_2/dev`, and `platform/dev` stacks on the foundation-managed `dev-staging` node.
 ## Lane ↔ Pulumi stack map (hosted)

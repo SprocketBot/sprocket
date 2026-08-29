@@ -13,7 +13,7 @@ prod:
   platform_subdomain: main
   traefik_hostnames:
     web: sprocket.mlesports.gg
-    api: sprocket.mlesports.gg  # Path-based: /graphql, /login, /authentication/*, /api/*
+    api: sprocket.mlesports.gg  # Path-based: /graphql, /login, /refresh, /authentication/*, /admin/*, /api/*
     image_generation: image-generation.sprocket.mlesports.gg
     rabbitmq_amqp: rabbitMq.sprocket.mlesports.gg
     rabbitmq_management: management.rabbitMq.sprocket.mlesports.gg
@@ -23,7 +23,7 @@ dev:
   platform_subdomain: dev
   traefik_hostnames:
     web: dev.sprocket.mlesports.gg
-    api: dev.sprocket.mlesports.gg  # Path-based: /graphql, /login, /authentication/*, /api/*
+    api: dev.sprocket.mlesports.gg  # Path-based: /graphql, /login, /refresh, /authentication/*, /admin/*, /api/*
     image_generation: image-generation.dev.sprocket.mlesports.gg
     rabbitmq_amqp: rabbitMq.dev.sprocket.mlesports.gg
     rabbitmq_management: management.rabbitMq.dev.sprocket.mlesports.gg
@@ -36,7 +36,7 @@ staging:
     - Align DNS in the provider with platform:hostname (staging.sprocket.mlesports.gg below); adjust if your zone uses stg.* instead.
   traefik_hostnames:
     web: staging.sprocket.mlesports.gg
-    api: staging.sprocket.mlesports.gg  # Path-based: /graphql, /login, /authentication/*, /api/*
+    api: staging.sprocket.mlesports.gg  # Path-based: /graphql, /login, /refresh, /authentication/*, /admin/*, /api/*
     image_generation: image-generation.staging.sprocket.mlesports.gg
     rabbitmq_amqp: rabbitMq.staging.sprocket.mlesports.gg
     rabbitmq_management: management.rabbitMq.staging.sprocket.mlesports.gg
