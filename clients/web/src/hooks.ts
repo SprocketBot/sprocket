@@ -1,5 +1,5 @@
 import type {GetSession, Handle} from "@sveltejs/kit";
-import {apiUrl, constants, loadConfig} from "$lib/utils";
+import {apiUrl, constants, decodeJwtPayload, loadConfig} from "$lib/utils";
 import {add} from "date-fns";
 
 interface refreshPayload {
@@ -9,89 +9,76 @@ interface refreshPayload {
     refreshToken: string;
 }
 
+type SessionJwtPayload = App.Locals["user"] & {exp?: number;};
+
 const doAuthRefresh = async (
     refreshUrl: string,
     currentCookies: string,
 ): Promise<refreshPayload | null> => {
-    let newCookiesString = "";
-    // Get the refresh token out of user's cookies
-    // Handle various cookie header formats robustly
-    const cookiePairs = currentCookies.split("; ").map(c => c.trim()).filter(Boolean);
-    const refreshToken = cookiePairs
-        .find(c => c.split("=")[0] === constants.refresh_token_cookie_key)
-        ?.split("=")[1];
-    if (refreshToken) {
-    // Send that refresh token to the backend, asking
-    // for a new JWT
-        const res = await fetch(refreshUrl, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${refreshToken}`,
-            },
-        });
+    // Parse the current cookies into a map (name -> value). The request Cookie
+    // header is `name=value; name2=value2`, so split on `; ` and take the first
+    // `=` as the separator (values may themselves contain `=`).
+    const cookies = new Map<string, string>();
+    currentCookies.split("; ").forEach(cookie => {
+        const separator = cookie.indexOf("=");
+        if (separator === -1) return;
+        cookies.set(cookie.slice(0, separator), cookie.slice(separator + 1));
+    });
 
-        if (!res.ok) {
-            const text = await res.text();
-            console.error(`Auth refresh failed for ${refreshUrl}: ${res.status} ${res.statusText} - ${text}`);
-            return null;
-        }
+    const refreshToken = cookies.get(constants.refresh_token_cookie_key);
+    if (!refreshToken) return null;
 
-        try {
-        // Pull the new tokens out of the response
-            const tokens = await res.json();
-            const access_token = tokens.access_token;
-            const new_refresh_token = tokens.refresh_token;
+    // Send that refresh token to the backend, asking for a new JWT
+    const res = await fetch(refreshUrl, {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${refreshToken}`,
+        },
+    });
 
-            // Store these new tokens back in the user's cookies
-            const newCookies = currentCookies.split("; ");
-
-            // Access token cookie
-            let newCookies1: string[];
-            if (newCookies.some(c => c.split("=")[0] === constants.auth_cookie_key)) {
-                // Cookie still exists, just update it
-                newCookies1 = newCookies.map(c => {
-                    if (c.split("=")[0] === constants.auth_cookie_key) {
-                        return `${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
-                            weeks: 1,
-                        }).toUTCString()}`;
-                    }
-                    return c;
-                });
-            } else {
-                // Access token cookie doesn't exist, add it.
-                newCookies1 = newCookies;
-                newCookies1.push(`${constants.auth_cookie_key}=${access_token};expires=${add(new Date(), {
-                    weeks: 1,
-                }).toUTCString()}`);
-            }
-
-            // Refresh token cookie
-            const newCookies2 = newCookies1.map(c => {
-                if (c.split("=")[0] === constants.refresh_token_cookie_key) {
-                    return `${constants.refresh_token_cookie_key}=${new_refresh_token};expires=${add(
-                        new Date(),
-                        {weeks: 1},
-                    ).toUTCString()}`;
-                }
-                return c;
-            });
-
-            // Roll our cookies back up into one string
-            newCookiesString = newCookies2.join("; ");
-
-            return {
-                cookies: newCookies2,
-                cookiesString: newCookiesString,
-                accessToken: access_token,
-                refreshToken: new_refresh_token,
-            };
-        } catch (e) {
-            console.error("Failed to parse refresh token response:", e);
-            return null;
-        }
+    if (!res.ok) {
+        const text = await res.text();
+        console.error(`Auth refresh failed for ${refreshUrl}: ${res.status} ${res.statusText} - ${text}`);
+        return null;
     }
 
-    return null;
+    try {
+        // Pull the new tokens out of the response
+        const tokens = await res.json();
+        const access_token = tokens.access_token;
+        const new_refresh_token = tokens.refresh_token;
+
+        // Update the cookie values
+        cookies.set(constants.auth_cookie_key, access_token);
+        cookies.set(constants.refresh_token_cookie_key, new_refresh_token);
+
+        // Clean Cookie header for the downstream request (name=value pairs only)
+        const cookiesString = Array.from(cookies.entries())
+            .map(([name, value]) => `${name}=${value}`)
+            .join("; ");
+
+        // Set-Cookie headers for the browser. Path=/ is required so the session
+        // cookies apply site-wide rather than only to the current route.
+        const setCookies = [
+            `${constants.auth_cookie_key}=${access_token};Path=/;expires=${add(new Date(), {
+                weeks: 1,
+            }).toUTCString()}`,
+            `${constants.refresh_token_cookie_key}=${new_refresh_token};Path=/;expires=${add(
+                new Date(),
+                {weeks: 1},
+            ).toUTCString()}`,
+        ];
+
+        return {
+            cookies: setCookies,
+            cookiesString,
+            accessToken: access_token,
+            refreshToken: new_refresh_token,
+        };
+    } catch (e) {
+        console.error("Failed to parse refresh token response:", e);
+        return null;
+    }
 };
 
 export const handle: Handle = async ({event, resolve}) => {
@@ -111,16 +98,20 @@ export const handle: Handle = async ({event, resolve}) => {
                 if (rawToken) {
                     // Get the meat out of the JWT (the middle third, separated
                     // by ".")
-                    const token = JSON.parse(Buffer.from(rawToken.split(".")[1], "base64").toString());
+                    const token = decodeJwtPayload<SessionJwtPayload>(rawToken);
 
-                    // Check if JWT has expiration claim
-                    const now = new Date();
-                    if (!token.exp) {
+                    if (!token) {
+                        // Token could not be decoded - treat as unauthenticated
+                        console.warn("JWT could not be decoded - clearing session");
+                        event.locals.user = undefined;
+                        event.locals.token = undefined;
+                    } else if (!token.exp) {
                         // No expiration claim - treat as valid but log warning
                         console.warn("JWT has no exp claim - treating as valid");
                         event.locals.user = token;
                         event.locals.token = rawToken;
                     } else {
+                        const now = new Date();
                         const exp = new Date(token.exp * 1000);
                         const remaining = exp.getTime() - now.getTime();
 
@@ -139,9 +130,16 @@ export const handle: Handle = async ({event, resolve}) => {
                                 event.request.headers.set("cookie", result.cookiesString);
                                 newCookies = result.cookies;
                                 // Refresh the session as well
-                                event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
-                                event.locals.token = result.accessToken;
-                                console.log("Token refresh successful");
+                                const refreshedUser = decodeJwtPayload<SessionJwtPayload>(result.accessToken);
+                                if (refreshedUser) {
+                                    event.locals.user = refreshedUser;
+                                    event.locals.token = result.accessToken;
+                                    console.log("Token refresh successful");
+                                } else {
+                                    console.log("Token refresh returned an undecodable token - clearing session");
+                                    event.locals.user = undefined;
+                                    event.locals.token = undefined;
+                                }
                             } else {
                                 // Refresh failed - clear the stale session
                                 // The old token is no longer valid, don't trust it
@@ -163,9 +161,16 @@ export const handle: Handle = async ({event, resolve}) => {
                         event.request.headers.set("cookie", result.cookiesString);
                         newCookies = result.cookies;
                         // Refresh the session as well
-                        event.locals.user = JSON.parse(Buffer.from(result.accessToken.split(".")[1], "base64").toString());
-                        event.locals.token = result.accessToken;
-                        console.log("Token refresh successful (no access token case)");
+                        const refreshedUser = decodeJwtPayload<SessionJwtPayload>(result.accessToken);
+                        if (refreshedUser) {
+                            event.locals.user = refreshedUser;
+                            event.locals.token = result.accessToken;
+                            console.log("Token refresh successful (no access token case)");
+                        } else {
+                            console.log("Token refresh returned an undecodable token - clearing session (no access token case)");
+                            event.locals.user = undefined;
+                            event.locals.token = undefined;
+                        }
                     } else {
                         // Refresh failed - no valid tokens, clear any residual session
                         console.log("Token refresh failed - clearing session (no access token case)");

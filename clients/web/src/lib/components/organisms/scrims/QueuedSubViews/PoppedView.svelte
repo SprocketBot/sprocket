@@ -21,7 +21,10 @@
 	    }
 	}
 
-	$: canCheckIn = !scrim.players.find(p => p.id === $user.userId)!.checkedIn;
+	$: canCheckIn = (() => {
+	    const player = scrim.players.find(p => p.id === $user.userId);
+	    return player ? !player.checkedIn : false;
+	})();
 </script>
 
 <section>

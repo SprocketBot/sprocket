@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const CORE_API = process.env.CORE_API || 'https://api.sprocket.mlesports.gg';
+const CORE_API = process.env.CORE_API || 'https://sprocket.mlesports.gg';
 
 /**
  * Auth Flow E2E Tests

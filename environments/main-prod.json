@@ -12,7 +12,7 @@
   },
   "entrypoints": {
     "web": "https://sprocket.mlesports.gg",
-    "api_graphql": "https://api.sprocket.mlesports.gg/graphql"
+    "api_graphql": "https://sprocket.mlesports.gg/graphql"
   },
   "topology": [
     "web",

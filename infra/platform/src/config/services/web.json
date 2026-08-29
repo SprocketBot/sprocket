@@ -1,6 +1,6 @@
 {
   "client": {
-    "gqlUrl": "{{ api.url }}",
+    "gqlUrl": "{{ frontend.url }}",
     "secure": true,
     "chatwoot": {
       "enabled": true,

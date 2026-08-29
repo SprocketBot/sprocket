@@ -1,9 +1,8 @@
 <script lang="ts">
     import type {CurrentScrim} from "$lib/api";
-    import {currentScrim, leaveScrimMutation} from "$lib/api";
+    import {leaveScrimMutation} from "$lib/api";
     import {ScrimFullIndicator} from "$lib/components";
     import {screamingSnakeToHuman} from "$lib/utils";
-    import {user} from "$lib/stores/user";
     import {format} from "date-fns";
     import dateFns from "date-fns-tz";
     const {utcToZonedTime} = dateFns;
@@ -17,8 +16,7 @@
         leaveButtonEnabled = false;
         try {
             await leaveScrimMutation({
-                player: {id: $user.id, name: $user.name},
-                scrimId: $currentScrim.data.currentScrim.id,
+                scrimId: scrim.id,
             });
         } finally {
             leaveButtonEnabled = true;

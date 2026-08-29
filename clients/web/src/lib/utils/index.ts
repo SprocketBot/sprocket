@@ -2,6 +2,7 @@ export * from "./actions";
 export * from "./text";
 export * from "./constants";
 export * from "./extractJwt";
+export * from "./decodeJwt";
 export * from "./types";
 export * from "./config";
 export * from "./apiUrl";

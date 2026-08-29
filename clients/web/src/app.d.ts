@@ -15,8 +15,8 @@ import type {
 declare global {
     declare namespace App {
         interface Locals {
-            user: SessionUser;
-            token: string;
+            user?: SessionUser;
+            token?: string;
         }
 
         interface Session {
