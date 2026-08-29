@@ -23,16 +23,9 @@
     $: scrimsAreDisabled = $scrimsDisabled.data?.getScrimsDisabled;
 
     let currentUserFranchises: string[] | undefined;
-    $: {
-        const franchises = $currentUser.data?.me?.members?.flatMap(m => m.players.flatMap(p => p.franchiseName as string) as string[]);
-        currentUserFranchises = franchises;
-        // Debug logging for troubleshooting
-        if (typeof window !== "undefined") {
-            console.log("[Scrims] Current User Data:", $currentUser.data);
-            console.log("[Scrims] Franchise Names:", franchises);
-            console.log("[Scrims] Current User Error:", $currentUser.error);
-        }
-    }
+    $: currentUserFranchises = $currentUser.data?.me?.members?.flatMap(m =>
+        m.players.flatMap(p => (p.franchiseName ? [p.franchiseName] : [])),
+    );
 
     let scrimPoints: number | null | undefined;
     $: scrimPoints = $currentUser.data?.me?.members?.[0]?.players?.[0]?.scrimPoints;

@@ -35,6 +35,11 @@
                         baseUrl: _url,
                     });
                 };
+                g.onerror = function() {
+                    // Chatwoot SDK failed to load (e.g. host unreachable or
+                    // bad cert). Fail silently rather than surfacing a console
+                    // error to users.
+                };
             })();
         }
     });

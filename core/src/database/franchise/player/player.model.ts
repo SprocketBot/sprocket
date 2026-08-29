@@ -39,8 +39,8 @@ export class Player extends BaseModel {
     @Field(() => RosterSlot, {nullable: true})
   slot?: RosterSlot;
 
-    @Field(() => String)
-  franchiseName: string;
+    @Field(() => String, {nullable: true})
+  franchiseName: string | null;
 
     @Field(() => [String])
   franchisePositions: string[];

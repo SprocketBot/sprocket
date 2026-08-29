@@ -25,18 +25,6 @@
 
   let fixture: Fixture | undefined;
   $: fixture = $fixtureStore.data?.fixture;
-
-  // Debug logging
-  $: {
-      console.log('[League Fixture] Store state:', {
-          fetching: $fixtureStore.fetching,
-          hasData: !!$fixtureStore.data,
-          hasFixture: !!$fixtureStore.data?.fixture,
-          matchCount: $fixtureStore.data?.fixture?.matches?.length,
-          error: $fixtureStore.error,
-          storeValue: $fixtureStore,
-      });
-  }
 </script>
 
 <DashboardLayout>

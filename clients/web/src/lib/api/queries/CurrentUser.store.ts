@@ -16,7 +16,7 @@ export interface CurrentUserResult {
                     };
                 };
                 franchisePositions: string[];
-                franchiseName: string;
+                franchiseName: string | null;
                 scrimPoints: number | null;
                 eligibilityEndDate: string | null;
             }>;

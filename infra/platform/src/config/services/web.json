@@ -3,7 +3,7 @@
     "gqlUrl": "{{ frontend.url }}",
     "secure": true,
     "chatwoot": {
-      "enabled": true,
+      "enabled": false,
       "url": "https://chatwoot.sprocket.mlesports.gg",
       "websiteToken": "{{ chatwoot.websiteToken }}"
     }
