@@ -26,14 +26,13 @@ sudo nano /etc/hosts
 
 ```
 127.0.0.1 sprocket.spr.ocket.cloud
-127.0.0.1 api.sprocket.spr.ocket.cloud
 127.0.0.1 image-generation.sprocket.spr.ocket.cloud
 ```
 
 Or run this one-liner:
 
 ```bash
-echo '127.0.0.1 sprocket.spr.ocket.cloud api.sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud' | sudo tee -a /etc/hosts
+echo '127.0.0.1 sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud' | sudo tee -a /etc/hosts
 ```
 
 ### Step 3: Access Your Services
@@ -41,7 +40,7 @@ echo '127.0.0.1 sprocket.spr.ocket.cloud api.sprocket.spr.ocket.cloud image-gene
 Once /etc/hosts is configured:
 
 - **Web UI**: https://sprocket.spr.ocket.cloud
-- **API**: https://api.sprocket.spr.ocket.cloud
+- **API**: https://sprocket.spr.ocket.cloud/graphql (or /login, /authentication/*)
 - **Image Generation**: https://image-generation.sprocket.spr.ocket.cloud
 
 **Note**: Your browser will show a certificate warning because you're using Traefik's default self-signed certificate (Let's Encrypt can't issue certs for localhost). This is normal for local development. Click "Advanced" → "Accept the Risk and Continue" (or similar in your browser).

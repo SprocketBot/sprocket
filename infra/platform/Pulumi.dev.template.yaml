@@ -5,7 +5,7 @@
 # 2. Merge this file into `Pulumi.dev.yaml` or copy values with `pulumi config set`.
 # 3. Set every **secret** via `pulumi config set --secret <key> <value>` — never commit real secrets.
 # 4. Point `platform:hostname` at the dev web apex so Traefik rules match harness URLs
-#    (e.g. dev.sprocket.mlesports.gg → API at api.dev.sprocket.mlesports.gg per `buildHost`).
+#    (e.g. dev.sprocket.mlesports.gg → API at /graphql, /login, /authentication/* via path-based routing).
 # 5. Image tags: prefer immutable `sha-<full-git-sha>` once CI publishes them (#670); `dev` is a moving alias only.
 #
 # Isolation: dedicated Pulumi stack on the pre-prod Swarm, unique subdomain, DB, Redis prefix, RabbitMQ vhost,

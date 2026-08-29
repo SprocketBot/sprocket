@@ -122,7 +122,8 @@ export class Platform extends pulumi.ComponentResource {
         /////////////////
         // Create Clients / Core
         /////////////////
-        this.apiUrl = buildHost("api", HOSTNAME)
+        // API URL now uses same host as web - routing handled by path prefix in Traefik
+        this.apiUrl = buildHost(HOSTNAME)
         this.webUrl = buildHost(HOSTNAME)
         this.chatwootUrl = buildHost(CHATWOOT_SUBDOMAIN, HOSTNAME)
         this.igUrl = buildHost("image-generation", HOSTNAME)
@@ -136,9 +137,11 @@ export class Platform extends pulumi.ComponentResource {
             .join(" || ")
         const fullIpRule = ipRule ? ` || ${ipRule}` : ""
 
+        // Core service: path-based routing for API endpoints
+        // Matches /graphql, /login, /authentication/*, and other API paths
         const coreLabels = new TraefikLabels(`sprocket-core-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")
-            .rule(`Host(\`${this.apiUrl}\`)`)
+            .rule(`PathPrefix(\`/graphql\`) || PathPrefix(\`/login\`) || PathPrefix(\`/authentication\`) || PathPrefix(\`/api\`)`)
             .targetPort(3001)
         const webLabels = new TraefikLabels(`sprocket-web-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")

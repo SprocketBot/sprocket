@@ -42,7 +42,7 @@ if [ "$RESOLVED_IP" = "127.0.0.1" ] || [ "$RESOLVED_IP" = "::1" ]; then
 elif [ -n "$RESOLVED_IP" ]; then
     echo -e "${YELLOW}Resolves to $RESOLVED_IP (NOT localhost)${NC}"
     echo -e "${YELLOW}You need to add to /etc/hosts:${NC}"
-    echo -e "${YELLOW}  127.0.0.1 sprocket.spr.ocket.cloud api.sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud${NC}"
+    echo -e "${YELLOW}  127.0.0.1 sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud${NC}"
 else
     echo -e "${RED}Does not resolve${NC}"
 fi
@@ -76,7 +76,7 @@ if [ "$RESOLVED_IP" != "127.0.0.1" ] && [ "$RESOLVED_IP" != "::1" ]; then
     echo -e "${YELLOW}Action needed:${NC} Add domains to /etc/hosts"
     echo ""
     echo "Run this command:"
-    echo -e "${GREEN}echo '127.0.0.1 sprocket.spr.ocket.cloud api.sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud' | sudo tee -a /etc/hosts${NC}"
+    echo -e "${GREEN}echo '127.0.0.1 sprocket.spr.ocket.cloud image-generation.sprocket.spr.ocket.cloud' | sudo tee -a /etc/hosts${NC}"
     echo ""
     echo "Then test with:"
     echo "  curl -k https://sprocket.spr.ocket.cloud"
