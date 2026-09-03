@@ -137,11 +137,20 @@ export class Platform extends pulumi.ComponentResource {
             .join(" || ")
         const fullIpRule = ipRule ? ` || ${ipRule}` : ""
 
-        // Core service: path-based routing for API endpoints
-        // Matches /graphql, /login, /refresh, /authentication/*, /admin/*, and /api/*
+        // Core service: path-based routing for API endpoints on the main app host only.
+        // Host scoping prevents collisions with other subdomains (e.g. grafana.* also uses /login and /api).
+        const coreHostRule = `Host(\`${this.apiUrl}\`)${fullIpRule}`
+        const corePathRule = [
+            "PathPrefix(`/graphql`)",
+            "PathPrefix(`/login`)",
+            "PathPrefix(`/refresh`)",
+            "PathPrefix(`/authentication`)",
+            "PathPrefix(`/admin`)",
+            "PathPrefix(`/api`)",
+        ].join(" || ")
         const coreLabels = new TraefikLabels(`sprocket-core-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")
-            .rule(`PathPrefix(\`/graphql\`) || PathPrefix(\`/login\`) || PathPrefix(\`/refresh\`) || PathPrefix(\`/authentication\`) || PathPrefix(\`/admin\`) || PathPrefix(\`/api\`)`)
+            .rule(`(${coreHostRule}) && (${corePathRule})`)
             .targetPort(3001)
         const webLabels = new TraefikLabels(`sprocket-web-${this.environmentSubdomain}`)
             .tls("lets-encrypt-tls")
