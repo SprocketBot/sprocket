@@ -37,7 +37,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="drawer-side z-50">
+        <div class="drawer-side">
             <label for="nav-drawer" class="drawer-overlay"></label>
             <div class="px-4 w-64 md:w-56 py-16 bg-gray-900 lg:bg-transparent">
                 <Navigation />
