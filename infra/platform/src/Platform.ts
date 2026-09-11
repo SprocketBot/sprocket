@@ -139,13 +139,15 @@ export class Platform extends pulumi.ComponentResource {
 
         // Core service: path-based routing for API endpoints on the main app host only.
         // Host scoping prevents collisions with other subdomains (e.g. grafana.* also uses /login and /api).
+        // GET /admin and GET /admin/ are the SvelteKit Admin page. Only the invalidate POSTs go to Core.
         const coreHostRule = `Host(\`${this.apiUrl}\`)${fullIpRule}`
         const corePathRule = [
             "PathPrefix(`/graphql`)",
             "PathPrefix(`/login`)",
             "PathPrefix(`/refresh`)",
             "PathPrefix(`/authentication`)",
-            "PathPrefix(`/admin`)",
+            "PathPrefix(`/admin/invalidate-all-sessions`)",
+            "PathPrefix(`/admin/invalidate-user-session`)",
             "PathPrefix(`/api`)",
         ].join(" || ")
         const coreLabels = new TraefikLabels(`sprocket-core-${this.environmentSubdomain}`)
