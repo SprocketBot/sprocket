@@ -279,6 +279,39 @@ mutation SwapDiscordAccounts($newAcct: String!, $oldAcct: String!) {
 
 ------------------------------------------------------------------------
 
+### `forcePlayerToTeamBulk`
+
+**Description:** Bulk forces players onto specific teams (MLEDB specific) using CSV files. Each row is processed with the same logic as `forcePlayerToTeam`.
+
+**Permissions:** Requires `MLEDB_ADMIN` or `LEAGUE_OPERATIONS` role.
+
+**Arguments:**
+
+- `files`: `[Upload!]!` - An array of CSV files to process.
+
+**CSV Format:** Headers: `mleid`, `newTeam`
+
+- Example row: `12345,Pioneers`
+
+**Returns:**
+
+- `ForcePlayerToTeamResult`: Union of `OperationError`. Returns code `200` when every row succeeds. If any CSV validation or row processing fails, returns code `400` with the collected error messages.
+
+**GraphQL Example:**
+
+``` graphql
+mutation ForcePlayerToTeamBulk($files: [Upload!]!) {
+  forcePlayerToTeamBulk(files: $files) {
+    ... on OperationError {
+      message
+      code
+    }
+  }
+}
+```
+
+------------------------------------------------------------------------
+
 ### `forcePlayerToTeam`
 
 **Description:** Forces a player to a specific team (MLEDB specific).
