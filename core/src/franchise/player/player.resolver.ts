@@ -58,6 +58,7 @@ import {
   changeSkillGroupSchema,
   CreatePlayerResult,
   ForcePlayerToTeamResult,
+  forcePlayerToTeamSchema,
   IntakeUserBulkSchema,
   IntakeUserResult,
   OperationError,
@@ -546,6 +547,71 @@ export class PlayerResolver {
       this.logger.error(`Error swapping Discord accounts: ${error}`);
       return new OperationError(
         error instanceof Error ? error.message : 'Failed to swap Discord accounts',
+        500,
+      );
+    }
+  }
+
+  @Mutation(() => ForcePlayerToTeamResult)
+  @UseGuards(
+    GqlJwtGuard,
+    MLEOrganizationTeamGuard([
+      MLE_OrganizationTeam.MLEDB_ADMIN,
+      MLE_OrganizationTeam.LEAGUE_OPERATIONS,
+    ]),
+  )
+  async forcePlayerToTeamBulk(
+    @Args('files', { type: () => [GraphQLUpload] })
+    files: Array<Promise<FileUpload>>,
+  ): Promise<typeof ForcePlayerToTeamResult> {
+    try {
+      this.logger.debug('Starting bulk force player to team');
+      const csvs = await Promise.all(
+        files.map(async f => f.then(async _f => readToString(_f.createReadStream()))),
+      );
+
+      const errors: string[] = [];
+
+      for (const csv of csvs) {
+        this.logger.debug(`Parsing and validating a CSV file: ${csv.substring(0, 50)}...`);
+        const records = parseAndValidateCsv(csv, forcePlayerToTeamSchema);
+        this.logger.debug(`Processing ${records.data.length} records from CSV`);
+        this.logger.debug(`Found ${records.errors.length} errors in CSV`);
+        for (const error of records.errors) {
+          const message = `Error in CSV: Row ${error.row}, Field: ${error.field || 'N/A'}, Value: ${
+            error.value || 'N/A'
+          }, Message: ${error.message}`;
+          this.logger.error(message);
+          errors.push(message);
+        }
+
+        for (const record of records.data) {
+          try {
+            this.logger.debug(`Forcing MLEID ${record.mleid} to team ${record.newTeam}`);
+            const result = await this.forcePlayerToTeam(record.mleid, record.newTeam);
+            if (result instanceof OperationError && result.code !== 200) {
+              errors.push(`MLEID ${record.mleid}: ${result.message}`);
+            }
+          } catch (error) {
+            this.logger.error(`Error processing MLEID ${record.mleid}:`, error);
+            errors.push(
+              `MLEID ${record.mleid}: ${
+                error instanceof Error ? error.message : 'Failed to force player to team'
+              }`,
+            );
+          }
+        }
+      }
+
+      if (errors.length > 0) {
+        return new OperationError(errors.join('; '), 400);
+      }
+
+      return new OperationError('Bulk force player to team completed successfully', 200);
+    } catch (error) {
+      this.logger.error(`Error in bulk force player to team: ${error}`);
+      return new OperationError(
+        error instanceof Error ? error.message : 'Failed to process bulk force player to team',
         500,
       );
     }

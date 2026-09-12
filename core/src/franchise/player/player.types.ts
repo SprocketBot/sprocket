@@ -94,6 +94,12 @@ export const IntakeUserBulkSchema = z.object({
     salary: z.preprocess(val => parseFloat(String(val)), z.number()),
 });
 
+export const forcePlayerToTeamSchema = z.object({
+    mleid: z.preprocess(val => Number(val), z.number().int()
+        .positive()),
+    newTeam: z.preprocess(val => (val == null ? "" : String(val).trim()), z.string().min(1)),
+});
+
 // Operation Error Type for Union Results
 @ObjectType()
 export class OperationError {
