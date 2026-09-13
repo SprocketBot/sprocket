@@ -30,7 +30,7 @@ export function initializeClient(sessionInput: App.Session): void {
             minTimeout: 10000,
             reconnect: true,
             lazy: true,
-            reconnectionAttempts: 10,
+            reconnectionAttempts: 3,
         })
         : null;
 
