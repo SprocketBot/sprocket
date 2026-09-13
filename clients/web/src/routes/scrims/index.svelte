@@ -64,7 +64,7 @@
 </script>
 
 <DashboardLayout>
-    <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-5 xl:col-span-5 row-span-1 md:row-span-3">
+    <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-5 row-span-1 md:row-span-3 min-w-0">
         {#if $currentScrim.fetching || $currentUser.fetching}
             <div class="h-full w-full flex items-center justify-center">
                 <Spinner class="h-16 w-full"/>
@@ -82,24 +82,32 @@
             <AvailableScrimsView/>
         {/if}
     </DashboardCard>
-    <DashboardNumberCard title="Scrims in the last hour"
-                         value={metrics?.completedScrims ?? 0}
-                         description="{activityChange}"
-    />
-    <DashboardNumberCard title="Pending Scrims"
-                         value={metrics?.pendingScrims ?? 0}
-    />
-    <DashboardNumberCard title="Active Players"
-                         value={metrics?.totalPlayers ?? 0}
-    />
-    <DashboardCard class="col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-3">
-        <h3 class="text-lg font-semibold text-sprocket mb-2">Scrim Eligibility</h3>
-        <div class="flex flex-col gap-1">
-            <span class="text-3xl font-bold {eligibilityStatus.color}">{eligibilityStatus.label}</span>
-            {#if scrimPoints !== undefined && scrimPoints !== null}
-                <span class="text-sm text-gray-400">{scrimPoints} points in last 30 days</span>
-            {/if}
-        </div>
-    </DashboardCard>
+    <aside class="col-span-1 md:col-span-2 lg:col-span-1 lg:row-span-3 flex flex-col gap-4 min-w-0">
+        <DashboardCard class="w-full">
+            <h3 class="text-lg font-semibold text-sprocket mb-2">Scrim Eligibility</h3>
+            <div class="flex flex-col gap-1 min-w-0">
+                <span class="text-3xl font-bold break-words min-w-0 {eligibilityStatus.color}">{eligibilityStatus.label}</span>
+                {#if scrimPoints !== undefined && scrimPoints !== null}
+                    <span class="text-sm text-gray-400">{scrimPoints} points in last 30 days</span>
+                {/if}
+            </div>
+        </DashboardCard>
+        <DashboardNumberCard
+            class="w-full"
+            title="Scrims in the last hour"
+            value={metrics?.completedScrims ?? 0}
+            description="{activityChange}"
+        />
+        <DashboardNumberCard
+            class="w-full"
+            title="Pending Scrims"
+            value={metrics?.pendingScrims ?? 0}
+        />
+        <DashboardNumberCard
+            class="w-full"
+            title="Active Players"
+            value={metrics?.totalPlayers ?? 0}
+        />
+    </aside>
 
 </DashboardLayout>

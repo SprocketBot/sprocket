@@ -26,11 +26,11 @@
             <UserMenu />
         </div>
     </nav>
-    <div class="drawer drawer-mobile h-full w-full flex-1">
+    <div class="drawer drawer-mobile h-full w-full min-w-0 min-h-0 flex-1">
         <input id="nav-drawer" type="checkbox" class="drawer-toggle">
 
         <!-- Page -->
-        <div class="drawer-content">
+        <div class="drawer-content min-w-0 overflow-x-hidden">
             <section>
                 <slot/>
             </section>
@@ -50,10 +50,10 @@
 <style lang="postcss">
     main {
         @apply bg-gradient-to-br from-base-200 via-base-300 to-black
-        h-screen w-screen flex flex-col;
+        h-screen w-full max-w-full min-w-0 overflow-x-hidden flex flex-col;
     }
     section {
-        @apply p-2 md:p-4 h-full flex flex-col py-16 md:py-20 lg:py-4 grid gap-2 md:gap-4 lg:gap-8
+        @apply p-2 md:p-4 h-full min-w-0 w-full overflow-x-hidden flex flex-col py-16 md:py-20 lg:py-4 grid gap-2 md:gap-4 lg:gap-8
         grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6;
         grid-auto-rows: minmax(min-content, 12rem);
 

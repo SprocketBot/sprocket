@@ -2,7 +2,7 @@
     import {LFSScrims, type LFSScrim} from "$lib/api";
 
     import {
-        ScrimCard, ScrimTable, CreateScrimModal, JoinScrimModal,
+        ScrimCard, ScrimTable, CreateScrimModal, JoinScrimModal, ResponsiveScrimList,
     } from "$lib/components";
     
     import {redirect} from "@sveltejs/kit";
@@ -35,14 +35,16 @@
         </button>
     </div>
 
-    <div class="flex md:hidden flex-col gap-4">
-        {#each scrims as scrim (scrim.id)}
-            <ScrimCard {scrim} joinScrim={openJoinScrimModal} />
-        {/each}
-    </div>
-    <div class="hidden md:block">
-        <ScrimTable {scrims} joinScrim={openJoinScrimModal} />
-    </div>
+    <ResponsiveScrimList>
+        <svelte:fragment slot="cards">
+            {#each scrims as scrim (scrim.id)}
+                <ScrimCard {scrim} joinScrim={openJoinScrimModal} />
+            {/each}
+        </svelte:fragment>
+        <svelte:fragment slot="table">
+            <ScrimTable {scrims} joinScrim={openJoinScrimModal} />
+        </svelte:fragment>
+    </ResponsiveScrimList>
 {/if}
 
 {#if createModalVisible}
