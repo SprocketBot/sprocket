@@ -334,22 +334,26 @@ export class ScrimModuleResolver {
             this: ScrimModuleResolver,
             payload: {followPendingScrims: Scrim;},
             variables,
-            context: {req: {user: UserPayload;};},
+            context: {req: {user: UserPayload;}; userSkillGroupIds?: Set<number>;},
         ) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;
 
-            const {id: gameModeId} = payload.followPendingScrims.gameMode;
-            const player = await this.playerService.getPlayerByOrganizationAndGameMode(
-                userId,
-                currentOrganizationId,
-                gameModeId,
-            );
+            if (!payload.followPendingScrims.settings.competitive) return true;
 
-            return (
-                player.skillGroupId === payload.followPendingScrims.skillGroupId
-        || !payload.followPendingScrims.settings.competitive
-            );
+            // userId + organizationId stays the same, caching in memory to reduce DB calls
+            // skillGroupId = game + league lvl
+            if (!context.userSkillGroupIds) {
+                const players: Player[] = await this.playerService
+                    .getPlayers({
+                        where: {member: {userId: userId, organizationId: currentOrganizationId} },
+                        select: {skillGroupId: true},
+                    })
+                    .catch((): Player[] => []);
+                context.userSkillGroupIds = new Set(players.map(p => p.skillGroupId));
+            }
+
+            return context.userSkillGroupIds.has(payload.followPendingScrims.skillGroupId);
         },
     })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {
