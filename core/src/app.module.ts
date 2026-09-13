@@ -26,9 +26,7 @@ import {SprocketRatingModule} from "./sprocket-rating";
 import {SubmissionModule} from "./submission";
 import {UtilModule} from "./util/util.module";
 
-// WebSocket connection lifecycle logging. `activeWsConnections` is the live
-// count of open subscription sockets, so a reconnect storm surfaces as a
-// climbing count in Loki.
+// WebSocket connection lifecycle logging.
 const wssConnectionLogger = new Logger("WSS:connection");
 let activeWsConnections = 0;
 

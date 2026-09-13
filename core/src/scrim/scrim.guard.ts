@@ -1,5 +1,7 @@
+import type {CanActivate, ExecutionContext} from "@nestjs/common";
 import {Injectable} from "@nestjs/common";
 import type {GraphQLExecutionContext} from "@nestjs/graphql";
+import {GqlExecutionContext} from "@nestjs/graphql";
 import type {Scrim} from "@sprocketbot/common";
 import {GraphQLError} from "graphql";
 
@@ -70,31 +72,19 @@ export class JoinScrimPlayerGuard extends PlayerGuard {
 }
 
 /**
- * Used on the field resolvers in the scrim resolver. Checks if the user attached to the request is a player in the scrim.
+ * In-memory scrim lobby guard.
+ * Assumes that scrim.players has all needed players.
  */
 @Injectable()
-export class ScrimResolverPlayerGuard extends PlayerGuard {
-    constructor(
-        private readonly gameModeService: GameModeService,
-        readonly playerService: PlayerService,
-    ) {
-        super();
-    }
-
-    async getGameAndOrganization(
-        ctx: GraphQLExecutionContext,
-        userPayload: UserPayload,
-    ): Promise<GameAndOrganization> {
-        if (!userPayload.currentOrganizationId) throw new Error("User is not connected to an organization");
+export class ScrimLobbyPlayerGuard implements CanActivate {
+    canActivate(context: ExecutionContext): boolean {
+        const ctx = GqlExecutionContext.create(context);
+        const user = ctx.getContext().req.user as UserPayload;
+        if (!user.currentOrganizationId) throw new Error("User is not connected to an organization");
 
         const scrim = ctx.getRoot<Scrim>();
-        const gameMode = await this.gameModeService.getGameModeById(scrim.gameModeId);
+        if (!scrim.players?.some(p => p.id === user.userId)) throw new Error("Player is not in the scrim");
 
-        if (!scrim.players.some(p => p.id === userPayload.userId)) throw new Error("Player is not in the scrim");
-
-        return {
-            gameId: gameMode.gameId,
-            organizationId: scrim.organizationId,
-        };
+        return true;
     }
 }
