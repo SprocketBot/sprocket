@@ -259,67 +259,71 @@ export class ScrimService {
         this.subscribed = true;
         const rx = await this.eventsService.subscribe(EventTopic.AllScrimEvents, true);
         rx.pipe(concatMap(async v => {
-            if (typeof v.payload !== "object") {
-                return;
-            }
-
-            let scrim: Scrim | undefined;
-            if ((v.topic as EventTopic) !== EventTopic.ScrimMetricsUpdate) {
-                scrim = {...(v.payload as Scrim)};
-
-                // Add gameMode/skillGroup to msg before publishing
-                try {
-                    if (scrim.gameModeId && !scrim.gameMode) {
-                        scrim.gameMode = await this.resolveGameMode(scrim.gameModeId);
-                    }
-                    if (scrim.skillGroupId && !scrim.skillGroup) {
-                        scrim.skillGroup = await this.resolveSkillGroup(scrim.skillGroupId);
-                    }
-                } catch (err) {
-                    this.logger.error("Failed to add gameMode/skillGroup to scrim", err as Error);
+            try {
+                if (typeof v.payload !== "object") {
+                    return;
                 }
 
-                this.pubsub
-                    .publish(this.allActiveScrimsSubTopic, {
-                        followActiveScrims: {
-                            scrim: scrim,
-                            event: v.topic,
-                        },
-                    })
-                    .catch(this.logger.error.bind(this.logger));
+                let scrim: Scrim | undefined;
+                if ((v.topic as EventTopic) !== EventTopic.ScrimMetricsUpdate) {
+                    scrim = {...(v.payload as Scrim)};
 
-                this.pubsub
-                    .publish(scrim.id, {
-                        followCurrentScrim: {
-                            scrim: scrim,
-                            event: v.topic,
-                        },
-                    })
-                    .catch(this.logger.error.bind(this.logger));
-            }
+                    // Add gameMode/skillGroup to msg before publishing
+                    try {
+                        if (scrim.gameModeId && !scrim.gameMode) {
+                            scrim.gameMode = await this.resolveGameMode(scrim.gameModeId);
+                        }
+                        if (scrim.skillGroupId && !scrim.skillGroup) {
+                            scrim.skillGroup = await this.resolveSkillGroup(scrim.skillGroupId);
+                        }
+                    } catch (err) {
+                        this.logger.error("Failed to add gameMode/skillGroup to scrim", err as Error);
+                    }
 
-            switch (v.topic as EventTopic) {
-                case EventTopic.ScrimMetricsUpdate:
                     this.pubsub
-                        .publish(this.metricsSubTopic, {followScrimMetrics: v.payload})
+                        .publish(this.allActiveScrimsSubTopic, {
+                            followActiveScrims: {
+                                scrim: scrim,
+                                event: v.topic,
+                            },
+                        })
                         .catch(this.logger.error.bind(this.logger));
-                    break;
-                case EventTopic.ScrimCreated:
-                case EventTopic.ScrimDestroyed:
-                case EventTopic.ScrimCancelled:
-                    if (scrim) {
+
+                    this.pubsub
+                        .publish(scrim.id, {
+                            followCurrentScrim: {
+                                scrim: scrim,
+                                event: v.topic,
+                            },
+                        })
+                        .catch(this.logger.error.bind(this.logger));
+                }
+
+                switch (v.topic as EventTopic) {
+                    case EventTopic.ScrimMetricsUpdate:
                         this.pubsub
-                            .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
+                            .publish(this.metricsSubTopic, {followScrimMetrics: v.payload})
                             .catch(this.logger.error.bind(this.logger));
-                    }
-                    break;
-                default:
-                    if (scrim && (scrim.status === ScrimStatus.PENDING || scrim.status === ScrimStatus.POPPED)) {
-                        this.pubsub
-                            .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
-                            .catch(this.logger.error.bind(this.logger));
-                    }
-                    break;
+                        break;
+                    case EventTopic.ScrimCreated:
+                    case EventTopic.ScrimDestroyed:
+                    case EventTopic.ScrimCancelled:
+                        if (scrim) {
+                            this.pubsub
+                                .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
+                                .catch(this.logger.error.bind(this.logger));
+                        }
+                        break;
+                    default:
+                        if (scrim && (scrim.status === ScrimStatus.PENDING || scrim.status === ScrimStatus.POPPED)) {
+                            this.pubsub
+                                .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
+                                .catch(this.logger.error.bind(this.logger));
+                        }
+                        break;
+                }
+            } catch (err) {
+                this.logger.error(`Failed to handle scrim event (topic=${v.topic}); skipping`, err as Error);
             }
         })).subscribe();
     }

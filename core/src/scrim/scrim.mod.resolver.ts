@@ -80,7 +80,10 @@ export class ScrimModuleResolver {
             });
             return new Set(players.map(p => p.skillGroupId));
         };
-        return this.userSkillGroupCache.getOrLoad(key, cacheMissFn).catch((): Set<number> => new Set());
+        return this.userSkillGroupCache.getOrLoad(key, cacheMissFn).catch((err: unknown): Set<number> => {
+            this.logger.error(`Error: load skill groups. user: ${userId}, org: ${organizationId}`, err as Error);
+            return new Set();
+        });
     }
 
     /*
