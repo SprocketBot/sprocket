@@ -357,7 +357,8 @@ export class ScrimModuleResolver {
             if (!currentOrganizationId) return false;
 
             if (!payload.followPendingScrims.settings.competitive) return true;
-
+            // userId + organizationId stays the same, caching in memory to reduce DB calls
+            // skillGroupId = game + league lvl
             const skillGroupIds = await this.getCachedSkillGroupIds(userId, currentOrganizationId);
             return skillGroupIds.has(payload.followPendingScrims.skillGroupId);
         },
