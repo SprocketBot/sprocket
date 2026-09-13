@@ -245,12 +245,14 @@ export class ScrimService {
     }
 
     private resolveGameMode(gameModeId: number): Promise<GameMode> {
-        const cacheMissFn = (): Promise<GameMode> => this.gameModeService.getGameModeById(gameModeId);
+        const cacheMissFn = (): Promise<GameMode> =>
+          this.gameModeService.getGameModeById(gameModeId, {relations: {game: true} });
         return this.gameModeCache.getOrLoad(gameModeId, cacheMissFn);
     }
 
     private resolveSkillGroup(skillGroupId: number): Promise<GameSkillGroup> {
-        const cacheMissFn = (): Promise<GameSkillGroup> => this.gameSkillGroupService.getGameSkillGroupById(skillGroupId);
+        const cacheMissFn = (): Promise<GameSkillGroup> =>
+          this.gameSkillGroupService.getGameSkillGroupById(skillGroupId, {relations: {profile: true} });
         return this.skillGroupCache.getOrLoad(skillGroupId, cacheMissFn);
     }
 

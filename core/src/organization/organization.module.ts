@@ -1,6 +1,6 @@
 import {forwardRef, Module} from "@nestjs/common";
 import {AnalyticsModule, EventsModule} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {LoggingPubSub} from "../util/logging-pub-sub";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database";
@@ -44,7 +44,7 @@ import {PronounsService} from "./pronouns/pronouns.service";
         MemberService,
         {
             provide: MemberPubSub,
-            useValue: new PubSub(),
+            useValue: new LoggingPubSub("member"),
         },
         PronounsService,
         MemberFixService,

@@ -1,6 +1,6 @@
 import {BullModule} from "@nestjs/bull";
 import type {MiddlewareConsumer, NestModule} from "@nestjs/common";
-import {Module} from "@nestjs/common";
+import {Logger, Module} from "@nestjs/common";
 import {GraphQLModule} from "@nestjs/graphql";
 import {config} from "@sprocketbot/common";
 import {RedisCache} from "apollo-server-cache-redis";
@@ -26,11 +26,28 @@ import {SprocketRatingModule} from "./sprocket-rating";
 import {SubmissionModule} from "./submission";
 import {UtilModule} from "./util/util.module";
 
+// WebSocket connection lifecycle logging. `activeWsConnections` is the live
+// count of open subscription sockets, so a reconnect storm surfaces as a
+// climbing count in Loki.
+const wssConnectionLogger = new Logger("WSS:connection");
+let activeWsConnections = 0;
+
 @Module({
     imports: [
         GraphQLModule.forRoot({
             autoSchemaFile: true,
             installSubscriptionHandlers: true,
+            subscriptions: {
+                onConnect: (): boolean => {
+                    activeWsConnections += 1;
+                    wssConnectionLogger.log(`connect activeConnections=${activeWsConnections}`);
+                    return true;
+                },
+                onDisconnect: (): void => {
+                    activeWsConnections = Math.max(0, activeWsConnections - 1);
+                    wssConnectionLogger.log(`disconnect activeConnections=${activeWsConnections}`);
+                },
+            },
             cache: new RedisCache({
                 host: config.cache.host,
                 port: config.cache.port,
@@ -57,7 +74,6 @@ import {UtilModule} from "./util/util.module";
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return {req};
             },
-            tracing: true,
             cors: true,
 
             // https://stackoverflow.com/questions/63991157/how-do-i-upload-multiple-files-with-nestjs-graphql
