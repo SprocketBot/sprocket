@@ -14,7 +14,7 @@ import {CurrentUser, UserPayload} from "../identity/auth/";
 import {GqlJwtGuard} from "../identity/auth/gql-auth-guard";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {OrGuard} from "../util/or.guard";
-import {ScrimResolverPlayerGuard} from "./scrim.guard";
+import {ScrimLobbyPlayerGuard} from "./scrim.guard";
 import type {ScrimGroup} from "./types";
 import {
     Scrim, ScrimLobby, ScrimPlayer,
@@ -50,8 +50,7 @@ export class ScrimResolver {
     }
 
     @ResolveField(() => ScrimLobby, {nullable: true})
-    // TODO: Guard for checking if person can observe
-    @UseGuards(OrGuard(ScrimResolverPlayerGuard))
+    @UseGuards(OrGuard(ScrimLobbyPlayerGuard))
     lobby(@Root() scrim: Scrim): ScrimLobby | undefined {
         return scrim.lobby;
     }

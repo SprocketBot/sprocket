@@ -25,7 +25,8 @@ import {MledbPlayerService} from "../mledb";
 import {MLEOrganizationTeamGuard} from "../mledb/mledb-player/mle-organization-team.guard";
 import {FormerPlayerScrimGuard} from "../mledb/mledb-player/mledb-player.guard";
 import {QueueBanGuard} from "../organization";
-import {ScrimPubSub} from "./constants";
+import {TtlCache} from "../util/ttl-cache";
+import {ScrimPubSub, SCRIM_CACHE_TTL_MS} from "./constants";
 import {CreateScrimPlayerGuard, JoinScrimPlayerGuard} from "./scrim.guard";
 import {ScrimService} from "./scrim.service";
 import {ScrimToggleService} from "./scrim-toggle";
@@ -57,6 +58,7 @@ export class ScrimModuleResolverPublic {
 @UseGuards(GqlJwtGuard)
 export class ScrimModuleResolver {
     private readonly logger = new Logger(ScrimModuleResolver.name);
+    private readonly userSkillGroupCache = new TtlCache<string, Set<number>>(SCRIM_CACHE_TTL_MS);
 
     constructor(
     @Inject(ScrimPubSub) private readonly pubSub: PubSub,
@@ -68,6 +70,21 @@ export class ScrimModuleResolver {
     private readonly scrimToggleService: ScrimToggleService,
     private readonly mlePlayerService: MledbPlayerService,
     ) {}
+
+    private getCachedSkillGroupIds(userId: number, organizationId: number): Promise<Set<number>> {
+        const key = `${userId}:${organizationId}`;
+        const cacheMissFn = async (): Promise<Set<number>> =>  {
+            const players: Player[] = await this.playerService.getPlayers({
+                where: {member: {userId: userId, organizationId: organizationId} },
+                select: {skillGroupId: true},
+            });
+            return new Set(players.map(p => p.skillGroupId));
+        };
+        return this.userSkillGroupCache.getOrLoad(key, cacheMissFn).catch((err: unknown): Set<number> => {
+            this.logger.error(`Error: load skill groups. user: ${userId}, org: ${organizationId}`, err as Error);
+            return new Set();
+        });
+    }
 
     /*
    *
@@ -334,26 +351,16 @@ export class ScrimModuleResolver {
             this: ScrimModuleResolver,
             payload: {followPendingScrims: Scrim;},
             variables,
-            context: {req: {user: UserPayload;}; userSkillGroupIds?: Set<number>;},
+            context: {req: {user: UserPayload;};},
         ) {
             const {userId, currentOrganizationId} = context.req.user;
             if (!currentOrganizationId) return false;
 
             if (!payload.followPendingScrims.settings.competitive) return true;
-
             // userId + organizationId stays the same, caching in memory to reduce DB calls
             // skillGroupId = game + league lvl
-            if (!context.userSkillGroupIds) {
-                const players: Player[] = await this.playerService
-                    .getPlayers({
-                        where: {member: {userId: userId, organizationId: currentOrganizationId} },
-                        select: {skillGroupId: true},
-                    })
-                    .catch((): Player[] => []);
-                context.userSkillGroupIds = new Set(players.map(p => p.skillGroupId));
-            }
-
-            return context.userSkillGroupIds.has(payload.followPendingScrims.skillGroupId);
+            const skillGroupIds = await this.getCachedSkillGroupIds(userId, currentOrganizationId);
+            return skillGroupIds.has(payload.followPendingScrims.skillGroupId);
         },
     })
     async followPendingScrims(): Promise<AsyncIterator<Scrim>> {

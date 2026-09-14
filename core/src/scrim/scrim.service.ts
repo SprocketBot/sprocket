@@ -21,15 +21,20 @@ import {
     ScrimStatus,
 } from "@sprocketbot/common";
 import {PubSub} from "apollo-server-express";
+import {concatMap} from "rxjs";
 import {Repository} from "typeorm";
 
+import type {GameSkillGroup} from "$db/franchise/game_skill_group/game_skill_group.model";
+import type {GameMode} from "$db/game/game_mode/game_mode.model";
 import {PlayerStatLine} from "$db/scheduling/player_stat_line/player_stat_line.model";
 
 import {GameSkillGroupService} from "../franchise";
 import {FranchiseService} from "../franchise/franchise";
+import {GameModeService} from "../game";
 import {MledbFinalizationService} from "../mledb";
 import {MemberService} from "../organization";
-import {ScrimPubSub} from "./constants";
+import {TtlCache} from "../util/ttl-cache";
+import {ScrimPubSub, SCRIM_CACHE_TTL_MS} from "./constants";
 import type {Scrim} from "./types";
 
 @Injectable()
@@ -38,10 +43,15 @@ export class ScrimService {
 
     private subscribed = false;
 
+    private readonly gameModeCache = new TtlCache<number, GameMode>(SCRIM_CACHE_TTL_MS);
+
+    private readonly skillGroupCache = new TtlCache<number, GameSkillGroup>(SCRIM_CACHE_TTL_MS);
+
     constructor(
         private readonly matchmakingService: MatchmakingService,
         private readonly eventsService: EventsService,
         private readonly gameSkillGroupService: GameSkillGroupService,
+        private readonly gameModeService: GameModeService,
         private readonly memberService: MemberService,
         private readonly franchiseService: FranchiseService,
         private readonly mleScrimService: MledbFinalizationService,
@@ -234,30 +244,57 @@ export class ScrimService {
         };
     }
 
+    private resolveGameMode(gameModeId: number): Promise<GameMode> {
+        const cacheMissFn = (): Promise<GameMode> =>
+          this.gameModeService.getGameModeById(gameModeId, {relations: {game: true} });
+        return this.gameModeCache.getOrLoad(gameModeId, cacheMissFn);
+    }
+
+    private resolveSkillGroup(skillGroupId: number): Promise<GameSkillGroup> {
+        const cacheMissFn = (): Promise<GameSkillGroup> =>
+          this.gameSkillGroupService.getGameSkillGroupById(skillGroupId, {relations: {profile: true} });
+        return this.skillGroupCache.getOrLoad(skillGroupId, cacheMissFn);
+    }
+
     async enableSubscription(): Promise<void> {
         if (this.subscribed) return;
         this.subscribed = true;
-        await this.eventsService.subscribe(EventTopic.AllScrimEvents, true).then(rx => {
-            rx.subscribe(v => {
+        const rx = await this.eventsService.subscribe(EventTopic.AllScrimEvents, true);
+        rx.pipe(concatMap(async v => {
+            try {
                 if (typeof v.payload !== "object") {
                     return;
                 }
 
+                let scrim: Scrim | undefined;
                 if ((v.topic as EventTopic) !== EventTopic.ScrimMetricsUpdate) {
+                    scrim = {...(v.payload as Scrim)};
+
+                    // Add gameMode/skillGroup to msg before publishing
+                    try {
+                        if (scrim.gameModeId && !scrim.gameMode) {
+                            scrim.gameMode = await this.resolveGameMode(scrim.gameModeId);
+                        }
+                        if (scrim.skillGroupId && !scrim.skillGroup) {
+                            scrim.skillGroup = await this.resolveSkillGroup(scrim.skillGroupId);
+                        }
+                    } catch (err) {
+                        this.logger.error("Failed to add gameMode/skillGroup to scrim", err as Error);
+                    }
+
                     this.pubsub
                         .publish(this.allActiveScrimsSubTopic, {
                             followActiveScrims: {
-                                scrim: v.payload,
+                                scrim: scrim,
                                 event: v.topic,
                             },
                         })
                         .catch(this.logger.error.bind(this.logger));
 
-                    const payload = v.payload as IScrim;
                     this.pubsub
-                        .publish(payload.id, {
+                        .publish(scrim.id, {
                             followCurrentScrim: {
-                                scrim: payload,
+                                scrim: scrim,
                                 event: v.topic,
                             },
                         })
@@ -271,27 +308,25 @@ export class ScrimService {
                             .catch(this.logger.error.bind(this.logger));
                         break;
                     case EventTopic.ScrimCreated:
-                        this.pubsub
-                            .publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload})
-                            .catch(this.logger.error.bind(this.logger));
-                        break;
                     case EventTopic.ScrimDestroyed:
                     case EventTopic.ScrimCancelled:
-                        this.pubsub
-                            .publish(this.pendingScrimsSubTopic, {followPendingScrims: v.payload})
-                            .catch(this.logger.error.bind(this.logger));
-                        break;
-                    default: {
-                        const payload = v.payload as IScrim;
-                        if (payload.status === ScrimStatus.PENDING || payload.status === ScrimStatus.POPPED) {
+                        if (scrim) {
                             this.pubsub
-                                .publish(this.pendingScrimsSubTopic, {followPendingScrims: payload as Scrim})
+                                .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
                                 .catch(this.logger.error.bind(this.logger));
                         }
                         break;
-                    }
+                    default:
+                        if (scrim && (scrim.status === ScrimStatus.PENDING || scrim.status === ScrimStatus.POPPED)) {
+                            this.pubsub
+                                .publish(this.pendingScrimsSubTopic, {followPendingScrims: scrim})
+                                .catch(this.logger.error.bind(this.logger));
+                        }
+                        break;
                 }
-            });
-        });
+            } catch (err) {
+                this.logger.error(`Failed to handle scrim event (topic=${v.topic}); skipping`, err as Error);
+            }
+        })).subscribe();
     }
 }

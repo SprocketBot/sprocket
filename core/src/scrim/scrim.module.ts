@@ -3,7 +3,7 @@ import {Module} from "@nestjs/common";
 import {
     EventsModule, MatchmakingModule, RedisModule,
 } from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {LoggingPubSub} from "../util/logging-pub-sub";
 
 import {ConfigurationModule} from "../configuration";
 import {DatabaseModule} from "../database/database.module";
@@ -52,7 +52,7 @@ import {ScrimToggleResolver, ScrimToggleService} from "./scrim-toggle";
         ScrimModuleResolverPublic,
         {
             provide: ScrimPubSub,
-            useValue: new PubSub(),
+            useValue: new LoggingPubSub("scrim"),
         },
         ScrimConsumer,
         ScrimService,

@@ -9,7 +9,7 @@ import {
     SubmissionModule,
 } from "@sprocketbot/common";
 import {CarballConverterService} from "@sprocketbot/common";
-import {PubSub} from "apollo-server-express";
+import {LoggingPubSub} from "../util/logging-pub-sub";
 
 import {DatabaseModule} from "../database";
 import {EloModule} from "../elo/elo.module";
@@ -55,7 +55,7 @@ import {ReplayParseService} from "./replay-parse.service";
         ReplayParseService,
         {
             provide: ReplayParsePubSub,
-            useValue: new PubSub(),
+            useValue: new LoggingPubSub("replay-parse"),
         },
         ReplaySubmissionResolver,
         SubmissionRejectionResolver,
