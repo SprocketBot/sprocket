@@ -51,6 +51,10 @@
     table {
         @apply select-none;
 
+        th, td {
+            white-space: nowrap;
+        }
+
         th {
             @apply text-sm text-center py-3;
 

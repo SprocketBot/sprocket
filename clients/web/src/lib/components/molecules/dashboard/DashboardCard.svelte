@@ -19,7 +19,7 @@
 
 <style lang="postcss">
     section {
-        @apply bg-base-100/10 p-8 drop-shadow-xl flex flex-col justify-between items-stretch relative;
+        @apply bg-base-100/10 p-8 drop-shadow-xl flex flex-col justify-between items-stretch relative min-w-0;
     }
 
     header {
@@ -38,6 +38,6 @@
     }
 
     div {
-        @apply flex-1;
+        @apply flex-1 min-w-0 w-full;
     }
 </style>
