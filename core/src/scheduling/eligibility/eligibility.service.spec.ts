@@ -195,11 +195,21 @@ describe("EligibilityService", () => {
     });
 
     describe("getEligibilityEndDate", () => {
+        const playerId = 1;
+
+        function expectActiveWindowQuery(): void {
+            expect(mockRepository.find).toHaveBeenCalledTimes(1);
+            const findArg = mockRepository.find.mock.calls[0][0] as {
+                where: {player: {id: number;}; createdAt: unknown;};
+            };
+            expect(findArg.where.player).toEqual({id: playerId});
+            expect(findArg.where.createdAt).toBeDefined();
+        }
+
         it("should return future date when points drop below 30 if currently eligible", async () => {
             const now = new Date("2026-01-19T15:00:00Z");
             jest.setSystemTime(now);
 
-            const playerId = 1;
             const p1Created = subDays(now, 10); // Expires in 20 days
             const p2Created = subDays(now, 20); // Expires in 10 days
 
@@ -217,45 +227,169 @@ describe("EligibilityService", () => {
             const result = await service.getEligibilityEndDate(playerId);
 
             // Drops below 30 when p2 expires (15 points)
-            // p2 expires at p2Created + 30 days
             expect(result).toEqual(addDays(p2Created, 30));
+            expectActiveWindowQuery();
         });
 
-        it("should return date when eligibility was lost if previously eligible", async () => {
+        it("returns the later expiration when an earlier one leaves exactly 30", async () => {
             const now = new Date("2026-01-19T15:00:00Z");
             jest.setSystemTime(now);
 
-            const playerId = 1;
-            // Was eligible 5 days ago, but a point expired 2 days ago.
-            const p1Created = subDays(now, 32); // Expired 2 days ago
-            const p2Created = subDays(now, 10); // Still active
-
-            const pointsCurrently = [
+            const expiresFirst = subDays(now, 20);
+            const expiresSecond = subDays(now, 10);
+            const points = [
                 {
-                    id: 2, points: 15, createdAt: p2Created, player: {id: playerId},
+                    id: 1, points: 5, createdAt: expiresFirst, player: {id: playerId},
+                },
+                {
+                    id: 2, points: 30, createdAt: expiresSecond, player: {id: playerId},
                 },
             ] as EligibilityData[];
 
-            const allPoints = [
-                {
-                    id: 1, points: 20, createdAt: p1Created, player: {id: playerId},
-                },
-                {
-                    id: 2, points: 15, createdAt: p2Created, player: {id: playerId},
-                },
-            ] as EligibilityData[];
-
-            mockRepository.find.mockResolvedValueOnce(pointsCurrently).mockResolvedValueOnce(allPoints);
+            mockRepository.find.mockResolvedValue(points);
 
             const result = await service.getEligibilityEndDate(playerId);
 
-            expect(result).toEqual(addDays(p1Created, 30));
+            // 35 - 5 = 30, still eligible; becomes ineligible when the 30 expires
+            expect(result).toEqual(addDays(expiresSecond, 30));
+            expectActiveWindowQuery();
         });
 
-        it("should return null if never eligible", async () => {
-            mockRepository.find.mockResolvedValue([]);
-            const result = await service.getEligibilityEndDate(1);
+        it("returns the expiration of an exact-30 active window", async () => {
+            const now = new Date("2026-01-19T15:00:00Z");
+            jest.setSystemTime(now);
+
+            const createdAt = subDays(now, 7);
+            mockRepository.find.mockResolvedValue([
+                {
+                    id: 1, points: 30, createdAt: createdAt, player: {id: playerId},
+                },
+            ] as EligibilityData[]);
+
+            const result = await service.getEligibilityEndDate(playerId);
+
+            expect(result).toEqual(addDays(createdAt, 30));
+            expectActiveWindowQuery();
+        });
+
+        it("returns null for empty history without a full-history query", async () => {
+            mockRepository.find
+                .mockResolvedValueOnce([])
+                .mockImplementation(() => {
+                    throw new Error("full-history query must not run");
+                });
+
+            const result = await service.getEligibilityEndDate(playerId);
+
             expect(result).toBeNull();
+            expectActiveWindowQuery();
+        });
+
+        it("returns null for leftover recent points totaling 29 without a full-history query", async () => {
+            const now = new Date("2026-01-19T15:00:00Z");
+            jest.setSystemTime(now);
+
+            mockRepository.find
+                .mockResolvedValueOnce([
+                    {
+                        id: 1, points: 14, createdAt: subDays(now, 2), player: {id: playerId},
+                    },
+                    {
+                        id: 2, points: 15, createdAt: subDays(now, 8), player: {id: playerId},
+                    },
+                ] as EligibilityData[])
+                .mockImplementation(() => {
+                    throw new Error("full-history query must not run");
+                });
+
+            const result = await service.getEligibilityEndDate(playerId);
+
+            expect(result).toBeNull();
+            expectActiveWindowQuery();
+        });
+
+        it("returns null for a currently ineligible player who was previously eligible", async () => {
+            const now = new Date("2026-01-19T15:00:00Z");
+            jest.setSystemTime(now);
+
+            const p2Created = subDays(now, 10); // Still active, 15 points
+            mockRepository.find
+                .mockResolvedValueOnce([
+                    {
+                        id: 2, points: 15, createdAt: p2Created, player: {id: playerId},
+                    },
+                ] as EligibilityData[])
+                .mockImplementation(() => {
+                    throw new Error("full-history query must not run");
+                });
+
+            const result = await service.getEligibilityEndDate(playerId);
+
+            expect(result).toBeNull();
+            expectActiveWindowQuery();
+        });
+
+        it("subtracts each of two rows that share an expiration timestamp once", async () => {
+            const now = new Date("2026-01-19T15:00:00Z");
+            jest.setSystemTime(now);
+
+            const sharedCreated = subDays(now, 20);
+            const laterCreated = subDays(now, 5);
+            const points = [
+                {
+                    id: 1, points: 5, createdAt: sharedCreated, player: {id: playerId},
+                },
+                {
+                    id: 2, points: 5, createdAt: sharedCreated, player: {id: playerId},
+                },
+                {
+                    id: 3, points: 25, createdAt: laterCreated, player: {id: playerId},
+                },
+            ] as EligibilityData[];
+
+            mockRepository.find.mockResolvedValue(points);
+
+            const result = await service.getEligibilityEndDate(playerId);
+
+            // 35 - 5 = 30 (still eligible), then the second same-timestamp 5 drops to 25
+            expect(result).toEqual(addDays(sharedCreated, 30));
+            expectActiveWindowQuery();
+        });
+
+        it("calculates eligibility end using only active-window rows", async () => {
+            const now = new Date("2026-01-19T15:00:00Z");
+            jest.setSystemTime(now);
+
+            const rowCount = 80;
+            const points = Array.from({length: rowCount}, (_, i) => ({
+                id: i + 1,
+                points: 1,
+                createdAt: subDays(now, 1 + (i % 25)),
+                player: {id: playerId},
+            })) as EligibilityData[];
+
+            mockRepository.find.mockResolvedValue(points);
+
+            const result = await service.getEligibilityEndDate(playerId);
+
+            let remaining = rowCount;
+            let expected: Date | null = null;
+            const expirations = points
+                .map(p => addDays(p.createdAt, 30))
+                .sort((a, b) => a.getTime() - b.getTime());
+            for (const date of expirations) {
+                remaining -= 1;
+                if (remaining < 30) {
+                    expected = date;
+                    break;
+                }
+            }
+
+            // 80 ones: remain eligible until 51 expirations drop the remainder to 29.
+            // date-fns named exports cannot be spied here; this asserts the walk is over
+            // the active-window rows only (one find, result is the 51st active expiration).
+            expect(result).toEqual(expected);
+            expectActiveWindowQuery();
         });
     });
 });

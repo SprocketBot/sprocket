@@ -96,54 +96,11 @@ export class EligibilityService {
 
         let currentPoints = points.reduce((acc, curr) => acc + curr.points, 0);
         if (currentPoints < 30) {
-            // If not currently eligible, we need to find when they were last eligible
-            // or if they will become eligible (but the requirement says "assuming no new points are earned")
-            // "return the date they were last eligible or null if never eligible"
-
-            const allPoints = await this.eligibilityDataRepository.find({
-                where: {player: {id: playerId} },
-                order: {createdAt: "ASC"},
-            });
-
-            let lastEligibleDate: Date | null = null;
-            for (let i = 0;i < allPoints.length;i++) {
-                const entry = allPoints[i];
-                const windowStart = subDays(entry.createdAt, 30);
-                const pointsInWindow = allPoints
-                    .filter(p => !isBefore(p.createdAt, windowStart) && !isAfter(p.createdAt, entry.createdAt))
-                    .reduce((acc, curr) => acc + curr.points, 0);
-
-                if (pointsInWindow >= 30) {
-                    // They were eligible at this point. When did they stop being eligible?
-                    // They stop being eligible when a point entry expires such that the total drops below 30.
-                    // We need to look at all expiration dates (createdAt + 30d) after this entry.
-                    const potentialExpirations = allPoints
-                        .slice(0, i + 1)
-                        .map(p => addDays(p.createdAt, 30))
-                        .filter(d => isAfter(d, entry.createdAt))
-                        .sort((a, b) => a.getTime() - b.getTime());
-
-                    let tempPoints = pointsInWindow;
-                    let tempLastDate = entry.createdAt;
-
-                    for (const expirationDate of potentialExpirations) {
-                        const expiredEntry = allPoints.find(p => addDays(p.createdAt, 30).getTime() === expirationDate.getTime());
-                        if (expiredEntry) {
-                            tempPoints -= expiredEntry.points;
-                            if (tempPoints < 30) {
-                                tempLastDate = expirationDate;
-                                break;
-                            }
-                            tempLastDate = expirationDate;
-                        }
-                    }
-                    lastEligibleDate = tempLastDate;
-                }
-            }
-            return lastEligibleDate;
+            return null;
         }
 
-        // If currently eligible, find when they drop below 30
+        // Currently eligible: first expiration that drops the active-window sum below 30,
+        // assuming no new points. Each row's expiration is computed once.
         const expirations = points
             .map(p => ({
                 date: addDays(p.createdAt, 30),
