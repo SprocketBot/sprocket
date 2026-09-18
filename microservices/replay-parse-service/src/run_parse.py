@@ -16,7 +16,7 @@ def main():
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     
-    replay_path = "../17A7C1084017DFA7DBE66D9C66D81CBD.replay"
+    replay_path = sys.argv[1] if len(sys.argv) > 1 else "../17A7C1084017DFA7DBE66D9C66D81CBD.replay"
     
     if not os.path.exists(replay_path):
         print(f"Error: Replay file not found at {replay_path}")

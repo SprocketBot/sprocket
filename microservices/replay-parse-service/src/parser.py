@@ -4,8 +4,9 @@ import logging
 
 from carball.analysis.analysis_manager import AnalysisManager
 from carball.json_parser.game import Game
+from carball.json_parser.player import Player
 from datetime import datetime
-from typing import Callable
+from typing import Callable, Iterable
 
 
 def get_result_metadata() -> dict:
@@ -107,6 +108,72 @@ def _normalize_header_date(date_value):
     return str(date_value)
 
 
+def _canonical_online_id(value):
+    if value in (None, "", "0", 0):
+        return None
+    text = str(value)
+    if text.strip("0") == "":
+        return None
+    return text
+
+
+def _associate_actors_with_player_stats_by_unique_id(
+    players: Iterable, all_data: dict, goals: Iterable = None
+) -> int:
+    """Join PRI actors to header players by UniqueId when names differ.
+
+    Carball only associates actors with PlayerStats by exact name. Production
+    replays can disagree on that string for any platform: censored PRI names,
+    punctuation differences, wholly different aliases, and similar mismatches.
+    UniqueId is the authoritative join key. Restoring the PlayerStats name onto
+    the matching actor lets the existing UniqueId upgrade path run with honest
+    unique_id provenance.
+    """
+    player_dicts = all_data.get("player_dicts") or {}
+    if not player_dicts:
+        return 0
+
+    players_by_online_id = {}
+    for player in players:
+        online_id = _canonical_online_id(getattr(player, "online_id", None))
+        if online_id is None:
+            continue
+        players_by_online_id.setdefault(online_id, player)
+
+    probe = Player()
+    restored = 0
+    for player_data in player_dicts.values():
+        if not isinstance(player_data, dict):
+            continue
+        if "Engine.PlayerReplicationInfo:UniqueId" not in player_data:
+            continue
+        unique_id, _platform = probe._get_unique_id_and_platform_from_actor(player_data)
+        unique_id = _canonical_online_id(unique_id)
+        if unique_id is None:
+            continue
+        matched = players_by_online_id.get(unique_id)
+        if matched is None or not getattr(matched, "name", None):
+            continue
+        old_name = player_data.get("name")
+        if old_name != matched.name:
+            player_data["name"] = matched.name
+            for goal in goals or []:
+                if getattr(goal, "player_name", None) == old_name:
+                    goal.player_name = matched.name
+                    if getattr(goal, "player", None) is None:
+                        goal.player = matched
+            restored += 1
+    return restored
+
+
+class _CarballGame(Game):
+    def parse_all_data(self, all_data, clean_player_names):
+        _associate_actors_with_player_stats_by_unique_id(
+            self.players, all_data, goals=self.goals
+        )
+        return super().parse_all_data(all_data, clean_player_names)
+
+
 def _parse_carball_full_analysis(
     path: str, on_progress: Callable[[str], None] = None
 ) -> dict:
@@ -134,7 +201,7 @@ def _parse_carball_full_analysis(
         # Step 2: Initialize Game object with decompiled JSON
         if on_progress:
             on_progress("Initializing game data...")
-        game = Game()
+        game = _CarballGame()
         game.initialize(loaded_json=_json)
 
         # Step 3: Create analysis and extract statistics
