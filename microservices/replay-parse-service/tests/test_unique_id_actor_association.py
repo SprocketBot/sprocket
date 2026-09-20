@@ -170,6 +170,32 @@ class UniqueIdActorAssociationTests(unittest.TestCase):
         self.assertEqual(zeroed["name"], "*************")
         self.assertEqual(player.id_source, "player_stats")
 
+    def test_restores_header_name_when_epic_unique_id_case_differs(self):
+        epic_id = "f93d75afd795466397f09a0ebe63f791"
+        header_player = SimpleNamespace(
+            name="noName Devotion",
+            online_id=epic_id.upper(),
+            id_source="player_stats",
+        )
+        actor = {
+            "name": "*************",
+            "Engine.PlayerReplicationInfo:UniqueId": {
+                "system_id": 11,
+                "remote_id": {"Epic": epic_id},
+                "local_id": 0,
+            },
+        }
+        all_data = {"player_dicts": {8: actor}}
+
+        restored = replay_parser._associate_actors_with_player_stats_by_unique_id(
+            [header_player],
+            all_data,
+        )
+
+        self.assertEqual(restored, 1)
+        self.assertEqual(actor["name"], "noName Devotion")
+        self.assertEqual(header_player.id_source, "player_stats")
+
     def test_does_not_associate_unrelated_unique_ids(self):
         player = SimpleNamespace(
             name="RealGamertag",
