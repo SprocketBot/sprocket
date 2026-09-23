@@ -1,12 +1,13 @@
 import carball
 import json
 import logging
+import re
 
 from carball.analysis.analysis_manager import AnalysisManager
 from carball.json_parser.game import Game
 from carball.json_parser.player import Player
 from datetime import datetime
-from typing import Callable, Iterable
+from typing import Callable, Iterable, List, Optional, Tuple
 
 
 def get_result_metadata() -> dict:
@@ -117,6 +118,140 @@ def _canonical_online_id(value):
     return text
 
 
+def _player_id_key(value) -> Optional[str]:
+    online_id = _canonical_online_id(value)
+    if online_id is None:
+        return None
+    return online_id.lower()
+
+
+# Rocket League sometimes writes a phantom PlayerStats row whose Name is the
+# UniqueId encoding Platform|<accountId>|<localId>, Team is -1, and Score is 0.
+# It duplicates a real player and has no matching PRI, so it stays
+# id_source=player_stats and AnalysisManager rejects the replay.
+_ENCODED_UNIQUE_ID_PLAYER_NAME = re.compile(
+    r"^(Epic|Steam|PlayStation|PS4|PSN|Xbox|XBox|Dingo|PsyNet|NNX|"
+    r"Switch|NintendoSwitch|QQ|WeGame)\|([^|]+)\|(\d+)$",
+    re.IGNORECASE,
+)
+_MISSING = object()
+
+
+def _account_id_from_encoded_player_name(name) -> Optional[str]:
+    match = _ENCODED_UNIQUE_ID_PLAYER_NAME.match(name or "")
+    if not match:
+        return None
+    return match.group(2).lower()
+
+
+def _player_stats_account_id(player_stats: dict) -> Optional[str]:
+    platform = _normalize_player_platform(player_stats.get("Platform"))
+    account_id = _canonical_online_id(
+        _extract_player_platform_account_id(player_stats, platform)
+    )
+    if account_id is not None:
+        return account_id.lower()
+    return _account_id_from_encoded_player_name(player_stats.get("Name"))
+
+
+def _is_unassigned_player_stats_row(player_stats: dict) -> bool:
+    return player_stats.get("Team") in (-1, None) and player_stats.get("Score") in (
+        0,
+        None,
+    )
+
+
+def _filter_ghost_player_stats(
+    player_stats: Iterable,
+) -> Tuple[List[dict], int]:
+    rows = [row for row in player_stats or [] if isinstance(row, dict)]
+    real_account_ids = set()
+    for row in rows:
+        encoded_id = _account_id_from_encoded_player_name(row.get("Name"))
+        if encoded_id and _is_unassigned_player_stats_row(row):
+            continue
+        account_id = _player_stats_account_id(row)
+        if account_id:
+            real_account_ids.add(account_id)
+
+    kept = []
+    dropped = 0
+    for row in rows:
+        encoded_id = _account_id_from_encoded_player_name(row.get("Name"))
+        if (
+            encoded_id
+            and _is_unassigned_player_stats_row(row)
+            and encoded_id in real_account_ids
+        ):
+            logging.warning(
+                "Dropping ghost PlayerStats row: name=%s team=%s score=%s account=%s",
+                row.get("Name"),
+                row.get("Team"),
+                row.get("Score"),
+                encoded_id,
+            )
+            dropped += 1
+            continue
+        kept.append(row)
+    return kept, dropped
+
+
+def _is_header_only_orphan(player) -> bool:
+    """True for a PlayerStats-only leaver/spectator that never got a PRI.
+
+    These rows survive UniqueId association because there is no actor to join.
+    AnalysisManager then rejects the replay. Players created from actors, bots,
+    and header players that actually played (Team 0/1) are left alone.
+    """
+    if getattr(player, "is_bot", False):
+        return False
+    if getattr(player, "id_source", None) == "unique_id":
+        return False
+    if getattr(player, "data", None) is not None:
+        return False
+    header_team = getattr(player, "_header_team", _MISSING)
+    if header_team is _MISSING or header_team not in (-1, None):
+        return False
+    if getattr(player, "score", None) not in (0, None):
+        return False
+    return True
+
+
+def _drop_header_only_orphan_players(game) -> int:
+    players = list(getattr(game, "players", None) or [])
+    kept = []
+    dropped = 0
+    for player in players:
+        if _is_header_only_orphan(player):
+            logging.warning(
+                "Dropping header-only PlayerStats orphan: name=%s team=%s score=%s "
+                "id_source=%s online_id=%s",
+                getattr(player, "name", None),
+                getattr(player, "_header_team", None),
+                getattr(player, "score", None),
+                getattr(player, "id_source", None),
+                getattr(player, "online_id", None),
+            )
+            dropped += 1
+            continue
+        kept.append(player)
+
+    if not dropped:
+        return 0
+
+    game.players = kept
+    kept_ids = {id(player) for player in kept}
+    for team in getattr(game, "teams", None) or []:
+        team_players = getattr(team, "players", None)
+        if not team_players:
+            continue
+        if isinstance(team_players, set):
+            team.players = {player for player in team_players if id(player) in kept_ids}
+        else:
+            team.players = [player for player in team_players if id(player) in kept_ids]
+    return dropped
+
+
 def _associate_actors_with_player_stats_by_unique_id(
     players: Iterable, all_data: dict, goals: Iterable = None
 ) -> int:
@@ -135,7 +270,7 @@ def _associate_actors_with_player_stats_by_unique_id(
 
     players_by_online_id = {}
     for player in players:
-        online_id = _canonical_online_id(getattr(player, "online_id", None))
+        online_id = _player_id_key(getattr(player, "online_id", None))
         if online_id is None:
             continue
         players_by_online_id.setdefault(online_id, player)
@@ -148,7 +283,7 @@ def _associate_actors_with_player_stats_by_unique_id(
         if "Engine.PlayerReplicationInfo:UniqueId" not in player_data:
             continue
         unique_id, _platform = probe._get_unique_id_and_platform_from_actor(player_data)
-        unique_id = _canonical_online_id(unique_id)
+        unique_id = _player_id_key(unique_id)
         if unique_id is None:
             continue
         matched = players_by_online_id.get(unique_id)
@@ -167,11 +302,39 @@ def _associate_actors_with_player_stats_by_unique_id(
 
 
 class _CarballGame(Game):
+    def create_players(self):
+        properties = self.properties or {}
+        raw_stats = properties.get("PlayerStats")
+        if raw_stats:
+            filtered, dropped = _filter_ghost_player_stats(raw_stats)
+            if dropped:
+                properties["PlayerStats"] = filtered
+                raw_stats = filtered
+
+        players = []
+        for player_stats in raw_stats or []:
+            if not isinstance(player_stats, dict):
+                continue
+            try:
+                player = Player().parse_player_stats(player_stats)
+            except KeyError as exc:
+                logging.warning(
+                    "Skipping malformed PlayerStats row name=%s: %s",
+                    player_stats.get("Name"),
+                    exc,
+                )
+                continue
+            player._header_team = player_stats.get("Team")
+            players.append(player)
+        return players
+
     def parse_all_data(self, all_data, clean_player_names):
         _associate_actors_with_player_stats_by_unique_id(
             self.players, all_data, goals=self.goals
         )
-        return super().parse_all_data(all_data, clean_player_names)
+        result = super().parse_all_data(all_data, clean_player_names)
+        _drop_header_only_orphan_players(self)
+        return result
 
 
 def _parse_carball_full_analysis(
