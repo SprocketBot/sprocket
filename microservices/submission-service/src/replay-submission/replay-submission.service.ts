@@ -20,6 +20,7 @@ import {ReplaySubmissionCrudService} from "./replay-submission-crud/replay-submi
 import {ReplaySubmissionRatificationService} from "./replay-submission-ratification";
 import {StatsConverterService} from "./stats-converter/stats-converter.service";
 
+const SUBMISSION_CLAIM_TTL_SECONDS = 60;
 @Injectable()
 export class ReplaySubmissionService {
     private readonly logger = new Logger(ReplaySubmissionService.name);
@@ -40,6 +41,98 @@ export class ReplaySubmissionService {
    * @param submissionId {string} Pre-generated Id assigned for this submission
    */
     async beginSubmission(
+        filePaths: Array<{minioPath: string; originalFilename: string;}>,
+        submissionId: string,
+        creatorId: number,
+    ): Promise<string[]> {
+        const claim = await this.submissionCrudService.claimSubmission(submissionId, SUBMISSION_CLAIM_TTL_SECONDS);
+        if (!claim) throw new Error("Another player is already submitting replays for this series.");
+        try {
+            return await this.startSubmission(filePaths, submissionId, creatorId);
+        } finally {
+            await this.submissionCrudService.releaseSubmissionClaim(submissionId, claim);
+        }
+    }
+
+    async mockCompletion(submissionId: string, results: unknown[]): Promise<boolean> {
+        const submission = await this.submissionCrudService.getSubmission(submissionId);
+        if (!submission) throw new Error(`Submission ${submissionId} not found`);
+
+        if (submission.items.length !== results.length) {
+            throw new Error(`Mock completion mismatch: submission has ${submission.items.length} items, but ${results.length} results were provided.`);
+        }
+
+        for (let i = 0; i < submission.items.length; i++) {
+            const item = submission.items[i];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const result = results[i] as any;
+
+            item.progress = {
+                status: ProgressStatus.Complete,
+                taskId: item.taskId,
+                result: result,
+                progress: {
+                    message: "Complete!",
+                    value: 100,
+                },
+                error: null,
+            };
+            item.outputPath = result.outputPath ?? "mock-output-path";
+            await this.submissionCrudService.upsertItem(submissionId, item);
+        }
+
+        await this.completeSubmission(submission, submissionId);
+        return true;
+    }
+
+    async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
+        if (
+            !submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))
+        ) {
+            throw new Error("Submission not yet ready for completion");
+        }
+
+        submission.rejections.forEach(r => {
+            r.stale = true;
+        });
+
+        await this.submissionCrudService.expireRejections(submissionId);
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.VALIDATING);
+
+        await this.eventsService.publish(EventTopic.SubmissionValidating, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+        });
+
+        this.logger.debug(`Validating replay submission ${submissionId}`);
+        const valid = await this.replayValidationService.validate(submission);
+        if (!valid.valid) {
+            await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
+            await this.ratificationService.rejectSubmission(
+                REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
+                submissionId,
+                valid.errors.map(e => e.error),
+            );
+            return;
+        }
+
+        await this.submissionCrudService.setValidatedTrue(submissionId);
+        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFYING);
+
+        submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));
+        await this.submissionCrudService.setStats(submissionId, submission.stats);
+
+        const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
+        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state with redis.");
+
+        await this.eventsService.publish(EventTopic.SubmissionRatifying, {
+            submissionId: submissionId,
+            redisKey: getSubmissionKey(submissionId),
+            resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
+        });
+    }
+
+    private async startSubmission(
         filePaths: Array<{minioPath: string; originalFilename: string;}>,
         submissionId: string,
         creatorId: number,
@@ -136,83 +229,5 @@ export class ReplaySubmissionService {
             redisKey: getSubmissionKey(submissionId),
         });
         return taskIds;
-    }
-
-    async mockCompletion(submissionId: string, results: unknown[]): Promise<boolean> {
-        const submission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!submission) throw new Error(`Submission ${submissionId} not found`);
-
-        if (submission.items.length !== results.length) {
-            throw new Error(`Mock completion mismatch: submission has ${submission.items.length} items, but ${results.length} results were provided.`);
-        }
-
-        for (let i = 0; i < submission.items.length; i++) {
-            const item = submission.items[i];
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const result = results[i] as any;
-
-            item.progress = {
-                status: ProgressStatus.Complete,
-                taskId: item.taskId,
-                result: result,
-                progress: {
-                    message: "Complete!",
-                    value: 100,
-                },
-                error: null,
-            };
-            item.outputPath = result.outputPath ?? "mock-output-path";
-            await this.submissionCrudService.upsertItem(submissionId, item);
-        }
-
-        await this.completeSubmission(submission, submissionId);
-        return true;
-    }
-
-    async completeSubmission(submission: ReplaySubmission, submissionId: string): Promise<void> {
-        if (
-            !submission.items.every(item => [ProgressStatus.Complete, ProgressStatus.Error].includes(item.progress?.status ?? ProgressStatus.Pending))
-        ) {
-            throw new Error("Submission not yet ready for completion");
-        }
-
-        submission.rejections.forEach(r => {
-            r.stale = true;
-        });
-
-        await this.submissionCrudService.expireRejections(submissionId);
-        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.VALIDATING);
-
-        await this.eventsService.publish(EventTopic.SubmissionValidating, {
-            submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
-        });
-
-        this.logger.debug(`Validating replay submission ${submissionId}`);
-        const valid = await this.replayValidationService.validate(submission);
-        if (!valid.valid) {
-            await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.REJECTED);
-            await this.ratificationService.rejectSubmission(
-                REPLAY_SUBMISSION_REJECTION_SYSTEM_PLAYER_ID,
-                submissionId,
-                valid.errors.map(e => e.error),
-            );
-            return;
-        }
-
-        await this.submissionCrudService.setValidatedTrue(submissionId);
-        await this.submissionCrudService.updateStatus(submissionId, ReplaySubmissionStatus.RATIFYING);
-
-        submission.stats = this.statsConverterService.convertStats(submission.items.map(item => item.progress!.result!));
-        await this.submissionCrudService.setStats(submissionId, submission.stats);
-
-        const refreshedSubmission = await this.submissionCrudService.getSubmission(submissionId);
-        if (!refreshedSubmission) throw new Error("Unexpected state found when refreshing submission state with redis.");
-
-        await this.eventsService.publish(EventTopic.SubmissionRatifying, {
-            submissionId: submissionId,
-            redisKey: getSubmissionKey(submissionId),
-            resultPaths: refreshedSubmission.items.map(item => item.outputPath!),
-        });
     }
 }
