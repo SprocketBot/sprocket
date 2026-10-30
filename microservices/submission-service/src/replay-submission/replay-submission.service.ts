@@ -1,7 +1,7 @@
 import {
     forwardRef, Inject, Injectable, Logger,
 } from "@nestjs/common";
-import type {ReplayParseTask, ReplaySubmission} from "@sprocketbot/common";
+import type {ReplaySubmission} from "@sprocketbot/common";
 import {
     CeleryService,
     EventsService,
@@ -110,16 +110,14 @@ export class ReplaySubmissionService {
                         await this.submissionCrudService.upsertItem(submissionId, item);
                         this.logger.debug(`Submission item updated for taskId '${_taskId}'`);
                         const items = await this.submissionCrudService.getSubmissionItems(submissionId);
-                        const tasks: ReplayParseTask[] = items.map(currentItem => ({
-                            status: currentItem.progress!.status,
-                            result: currentItem.progress!.result,
-                            error: currentItem.progress!.error ? new Error(currentItem.progress!.error) : null,
-                            taskId: currentItem.taskId,
-                        }));
-                        if (
-                            tasks.length === filePaths.length
-              && tasks.every(t => [ProgressStatus.Complete, ProgressStatus.Error].includes(t.status))
-                        ) {
+                        // outputPath only lands with the Celery result, after the parse output is
+                        // uploaded; the progress queue publishes Complete before that upload.
+                        // validate() reads outputPath.
+                        // See microservices/replay-parse-service/src/main.py - ParseReplay.run
+                        const itemsReady = items.every(currentItem => currentItem.progress?.status === ProgressStatus.Error
+                            || (currentItem.progress?.status === ProgressStatus.Complete
+                                && Boolean(currentItem.outputPath)));
+                        if (items.length === filePaths.length && itemsReady) {
                             // We do be kinda done though.
                             this.logger.debug(`All tasks complete for submissionId '${submissionId}'`);
                             const submission = await this.submissionCrudService.getSubmission(submissionId);
