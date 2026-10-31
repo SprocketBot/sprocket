@@ -1,7 +1,11 @@
-import {REDIS_PREFIX} from "../submission.constants";
+import {REDIS_PREFIX, SUBMISSION_LOCK_PREFIX} from "../submission.constants";
 
 export function getSubmissionKey(submissionId: string): string {
     return `${REDIS_PREFIX}:${submissionId}`;
+}
+
+export function getSubmissionLockKey(submissionId: string): string {
+    return `${SUBMISSION_LOCK_PREFIX}:${submissionId}`;
 }
 
 export function submissionIsScrim(submissionId: string): boolean {

@@ -25,9 +25,11 @@ import {
     ResponseStatus,
     SCRIM_REQ_RATIFICATION_MAJORITY,
 } from "@sprocketbot/common";
+import {v4} from "uuid";
 
 import {
     getSubmissionKey,
+    getSubmissionLockKey,
     submissionIsLFS,
     submissionIsMatch,
     submissionIsScrim,
@@ -69,6 +71,7 @@ export class ReplaySubmissionCrudService {
         const key = getSubmissionKey(submissionId);
         const existingSubmission = await this.redisService.getJsonIfExists<ReplaySubmission>(key);
         if (existingSubmission && !existingSubmission.items.length) return existingSubmission;
+        if (existingSubmission) throw new Error(`Submission ${submissionId} already has replays`);
 
         const commonFields = {
             id: submissionId,
@@ -183,6 +186,21 @@ export class ReplaySubmissionCrudService {
     async removeSubmission(submissionId: string): Promise<void> {
         const key = getSubmissionKey(submissionId);
         return this.redisService.delete(key);
+    }
+
+    async claimSubmission(submissionId: string, ttlSeconds: number): Promise<string | null> {
+        const token = v4();
+        const result = await this.redisService.redis.set(getSubmissionLockKey(submissionId), token, "EX", ttlSeconds, "NX");
+        return result === "OK" ? token : null;
+    }
+
+    async releaseSubmissionClaim(submissionId: string, token: string): Promise<void> {
+        await this.redisService.redis.eval(
+            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+            1,
+            getSubmissionLockKey(submissionId),
+            token,
+        );
     }
 
     async removeItems(submissionId: string): Promise<void> {
