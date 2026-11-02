@@ -97,7 +97,7 @@ describe("ReplaySubmissionService concurrent submissions", () => {
             service.beginSubmission(replays("bob"), SUBMISSION_ID, 2),
         ]);
 
-        const fulfilled = results.filter(r => r.status === "fulfilled");
+        const fulfilled = results.filter((r): r is PromiseFulfilledResult<string[]> => r.status === "fulfilled");
         const rejected = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
         expect(fulfilled).toHaveLength(1);
         expect(rejected).toHaveLength(1);
